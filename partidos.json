@@ -5,12 +5,12 @@
     "equipo_local": "C.E. LLINARS",
     "equipo_visitante": "RIVAL",
     "escudo_local": "https://www.fcf.cat/img/escudos/club_08027.png",
-    "escudo_visitante": "https://www.fcf.cat/img/logosfcf/FCF_Vermell.svg",
+    "escudo_visitante": "https://www.fcf.cat/img/escudos/club_08027.png",
     "es_local": true,
-    "fecha": "Jornada Próxima",
-    "hora": "Por determinar",
+    "fecha": "Por determinar",
+    "hora": "",
     "campo": "Camp Municipal de Llinars del Vallès",
-    "url": "https://www.fcf.cat/ca/competicio?temporadaId=22&disciplinaId=19308233&competicioId=58162474&grupId=58162479"
+    "url": "https://www.fcf.cat/equip/22/19308233/llinars-ce-a"
   },
   {
     "jugador": "Biel",
@@ -18,11 +18,11 @@
     "equipo_local": "C.E. LLINARS",
     "equipo_visitante": "RIVAL",
     "escudo_local": "https://www.fcf.cat/img/escudos/club_08027.png",
-    "escudo_visitante": "https://www.fcf.cat/img/logosfcf/FCF_Vermell.svg",
+    "escudo_visitante": "https://www.fcf.cat/img/escudos/club_08027.png",
     "es_local": true,
-    "fecha": "Jornada Próxima",
-    "hora": "Por determinar",
+    "fecha": "Por determinar",
+    "hora": "",
     "campo": "Camp Municipal de Llinars del Vallès",
-    "url": "https://www.fcf.cat/ca/competicio?temporadaId=22&disciplinaId=19308235&competicioId=58162174&grupId=60364101"
+    "url": "https://www.fcf.cat/equip/22/19308235/llinars-ce-a"
   }
 ]
