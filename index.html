@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="C.E. Llinars">
+  <!-- Icono del C.E. Llinars para la pantalla de inicio del iPhone -->
+  <link rel="apple-touch-icon" href="https://www.fcf.cat/img/escudos/club_08027.png">
+  <link rel="icon" type="image/png" href="https://www.fcf.cat/img/escudos/club_08027.png">
+  <title>Partidos Erik y Biel</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    body { background-color: #0b1329; color: #f8fafc; margin: 0; padding: 16px; min-height: 100vh; }
+    .header { text-align: center; padding: 10px 0 20px; }
+    .header h1 { font-size: 22px; font-weight: 800; color: #38bdf8; margin: 0; }
+    .header p { font-size: 13px; color: #94a3b8; margin-top: 4px; }
+    .day-block { background: #162238; border-radius: 18px; padding: 16px; margin-bottom: 20px; border: 1px solid #1e2d4a; box-shadow: 0 4px 15px rgba(0,0,0,0.4); }
+    .day-header { display: flex; align-items: center; justify-content: space-between; border-bottom: 2px solid #233554; padding-bottom: 10px; margin-bottom: 14px; }
+    .day-title { font-size: 18px; font-weight: 800; color: #f1f5f9; text-transform: uppercase; }
+    .day-date { font-size: 13px; color: #38bdf8; font-weight: 600; background: rgba(56,189,248,0.1); padding: 4px 10px; border-radius: 12px; }
+    .match-card { background: #1e2e4a; border-radius: 14px; padding: 14px; margin-bottom: 12px; border-left: 5px solid #3b82f6; }
+    .match-card.erik { border-left-color: #0284c7; }
+    .match-card.biel { border-left-color: #10b981; }
+    .kid-tag { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 800; text-transform: uppercase; margin-bottom: 10px; }
+    .kid-tag.erik { background: #0284c7; color: #fff; }
+    .kid-tag.biel { background: #10b981; color: #fff; }
+    .match-versus { display: flex; align-items: center; justify-content: space-between; padding: 8px 0; text-align: center; }
+    .team { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+    .team img { width: 44px; height: 44px; object-fit: contain; }
+    .team-name { font-size: 12px; font-weight: 700; color: #e2e8f0; max-width: 90px; line-height: 1.2; }
+    .vs-badge { font-size: 11px; font-weight: 900; color: #64748b; background: #0f172a; padding: 6px 10px; border-radius: 50%; }
+    .match-details { display: flex; justify-content: space-between; align-items: center; margin-top: 12px; padding-top: 10px; border-top: 1px dashed #2d4263; font-size: 13px; color: #cbd5e1; }
+    .time-info { font-weight: 800; color: #f3f4f6; display: flex; align-items: center; gap: 6px; }
+    .location-info { font-size: 12px; color: #94a3b8; display: flex; align-items: center; gap: 4px; text-decoration: none; }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <h1>⚽ AGENDA DE PARTIDOS</h1>
+    <p>Fin de semana de Erik y Biel</p>
+  </div>
+
+  <div id="agenda-container">
+    <p style="text-align:center; color:#94a3b8; padding: 40px 0;">Cargando calendario oficial FCF...</p>
+  </div>
+
+  <script>
+    async function cargarAgenda() {
+      const contenedor = document.getElementById('agenda-container');
+      try {
+        const res = await fetch('partidos.json?v=' + new Date().getTime());
+        const datos = await res.json();
+        
+        let html = '';
+        datos.forEach(bloque => {
+          html += `
+            <div class="day-block">
+              <div class="day-header">
+                <span class="day-title">${bloque.dia}</span>
+                <span class="day-date">${bloque.fecha_dia}</span>
+              </div>
+          `;
+          
+          bloque.partidos.forEach(p => {
+            const esErik = p.jugador.toLowerCase().includes('erik');
+            const claseKid = esErik ? 'erik' : 'biel';
+            const etiqueta = esErik ? '👦 ERIK (Infantil A)' : '👦 BIEL (Benjamí B)';
+            
+            html += `
+              <div class="match-card ${claseKid}">
+                <span class="kid-tag ${claseKid}">${etiqueta}</span>
+                
+                <div class="match-versus">
+                  <div class="team">
+                    <img src="${p.escudo_local}" alt="Local" onerror="this.src='https://www.fcf.cat/img/escudos/club_08027.png'">
+                    <span class="team-name">${p.equipo_local}</span>
+                  </div>
+                  
+                  <span class="vs-badge">VS</span>
+                  
+                  <div class="team">
+                    <img src="${p.escudo_visitante}" alt="Visitante" onerror="this.src='https://www.fcf.cat/img/escudos/club_08027.png'">
+                    <span class="team-name">${p.equipo_visitante}</span>
+                  </div>
+                </div>
+
+                <div class="match-details">
+                  <div class="time-info">
+                    <i class="fa-solid fa-clock"></i> ${p.hora} h
+                  </div>
+                  <a href="https://maps.apple.com/?q=${encodeURIComponent(p.campo)}" target="_blank" class="location-info">
+                    <i class="fa-solid fa-location-dot"></i> ${p.campo}
+                  </a>
+                </div>
+              </div>
+            `;
+          });
+
+          html += `</div>`;
+        });
+
+        contenedor.innerHTML = html;
+      } catch (e) {
+        contenedor.innerHTML = '<p style="text-align:center; color:#94a3b8;">Cargando primeros partidos de la jornada...</p>';
+      }
+    }
+
+    cargarAgenda();
+  </script>
+</body>
+</html>
