@@ -1,26 +1,28 @@
 [
   {
-    "dia": "Sábado",
-    "fecha_dia": "Fin de semana",
-    "partidos": [
-      {
-        "jugador": "Erik",
-        "equipo_local": "CE LLINARS",
-        "equipo_visitante": "RIVAL",
-        "escudo_local": "https://www.fcf.cat/img/escudos/club_08027.png",
-        "escudo_visitante": "https://www.fcf.cat/img/logosfcf/FCF_Vermell.svg",
-        "hora": "Por confirmar",
-        "campo": "Campo Municipal Llinars"
-      },
-      {
-        "jugador": "Biel",
-        "equipo_local": "CE LLINARS",
-        "equipo_visitante": "RIVAL",
-        "escudo_local": "https://www.fcf.cat/img/escudos/club_08027.png",
-        "escudo_visitante": "https://www.fcf.cat/img/logosfcf/FCF_Vermell.svg",
-        "hora": "Por confirmar",
-        "campo": "Campo Municipal Llinars"
-      }
-    ]
+    "jugador": "Erik",
+    "categoria": "Infantil A",
+    "equipo_local": "C.E. LLINARS A",
+    "equipo_visitante": "RIVAL JORNADA",
+    "escudo_local": "https://www.fcf.cat/img/escudos/club_08027.png",
+    "escudo_visitante": "https://www.fcf.cat/img/logosfcf/FCF_Vermell.svg",
+    "es_local": true,
+    "fecha_completa": "Sábado / Domingo",
+    "hora": "Por confirmar",
+    "campo": "Camp Municipal de Llinars del Vallès",
+    "url": "https://www.fcf.cat/ca/competicio?temporadaId=22&disciplinaId=19308233&competicioId=58162474&grupId=58162479"
+  },
+  {
+    "jugador": "Biel",
+    "categoria": "Benjamí B",
+    "equipo_local": "RIVAL JORNADA",
+    "equipo_visitante": "C.E. LLINARS B",
+    "escudo_local": "https://www.fcf.cat/img/logosfcf/FCF_Vermell.svg",
+    "escudo_visitante": "https://www.fcf.cat/img/escudos/club_08027.png",
+    "es_local": false,
+    "fecha_completa": "Sábado / Domingo",
+    "hora": "Por confirmar",
+    "campo": "Campo Visitante",
+    "url": "https://www.fcf.cat/ca/competicio?temporadaId=22&disciplinaId=19308235&competicioId=58162174&grupId=60364101"
   }
 ]
