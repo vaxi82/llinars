@@ -1,108 +1,128 @@
 import requests
-from bs4 import BeautifulSoup
 import json
-import re
+import sys
+from datetime import datetime, date
 
+# ============================================================
+# CONFIGURACIÓN — API de la FCF con endpoints reales de jornadas
+# ============================================================
 JUGADORES = [
     {
         "jugador": "Erik",
         "categoria": "Infantil A",
-        "url_web": "https://www.fcf.cat/equip/22/19308233/llinars-ce-a"
+        "api": "https://www.fcf.cat/api/actesJornada/22/19308233/58162474/58162479/1",
+        "url_web": "https://www.fcf.cat/ca/competicio?temporadaId=22&disciplinaId=19308233&competicioId=58162474&grupId=58162479"
     },
     {
         "jugador": "Biel",
         "categoria": "Benjamí B",
-        "url_web": "https://www.fcf.cat/equip/22/19308235/llinars-ce-a"
+        "api": "https://www.fcf.cat/api/actesJornada/22/19308235/58162174/60364101/1",
+        "url_web": "https://www.fcf.cat/ca/competicio?temporadaId=22&disciplinaId=19308235&competicioId=58162174&grupId=60364101"
     }
 ]
 
-ESCUDO_LLINARS = "https://www.fcf.cat/img/escudos/club_08027.png"
+CLUB = "LLINARS"
+ESCUDO_CLUB = "https://www.fcf.cat/img/escudos/club_08027.png"
+
 headers = {
-    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-    "Accept-Language": "ca,es;q=0.9"
+    "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1",
+    "Accept": "application/json, text/plain, */*",
+    "Referer": "https://www.fcf.cat/"
 }
 
-def normalizar_escudo(src):
-    if not src or "escutbase" in src or "logo_federacio" in src:
-        return ESCUDO_LLINARS
-    if src.startswith("//"):
-        return "https:" + src
-    if src.startswith("http"):
-        return src
-    if src.startswith("/"):
-        return "https://www.fcf.cat" + src
-    return f"https://www.fcf.cat/canvas/escut/{src}"
+def escudo_url(valor):
+    if not valor or "escutbase" in str(valor) or "logo_federacio" in str(valor):
+        return ESCUDO_CLUB
+    valor = str(valor)
+    if valor.startswith("http"):
+        return valor
+    if valor.startswith("/"):
+        return "https://www.fcf.cat" + valor
+    return f"https://www.fcf.cat/canvas/escut/{valor}"
 
+def parse_fecha_hora(comienzo):
+    if not comienzo:
+        return "Fecha por determinar", "", None
+    partes = comienzo.split(" ")
+    if len(partes) >= 2:
+        f_partes = partes[0].split("-")
+        if len(f_partes) == 3:
+            f_obj = date(int(f_partes[0]), int(f_partes[1]), int(f_partes[2]))
+            fecha_fmt = f"{f_partes[2]}/{f_partes[1]}/{f_partes[0]}"
+            hora_fmt = partes[1][:5]
+            return fecha_fmt, hora_fmt, f_obj
+    return "Fecha por determinar", "", None
+
+hoy = date.today()
 partidos = []
 
 for eq in JUGADORES:
-    p_data = {
-        "jugador": eq["jugador"],
-        "categoria": eq["categoria"],
-        "equipo_local": "C.E. LLINARS",
-        "equipo_visitante": "RIVAL",
-        "escudo_local": ESCUDO_LLINARS,
-        "escudo_visitante": ESCUDO_LLINARS,
-        "es_local": True,
-        "fecha": "Por determinar",
-        "hora": "",
-        "campo": "Camp Municipal de Llinars del Vallès",
-        "url": eq["url_web"]
-    }
-    
     try:
-        res = requests.get(eq["url_web"], headers=headers, timeout=20)
-        if res.status_code == 200:
-            soup = BeautifulSoup(res.text, 'html.parser')
-            
-            # Buscar el bloque del próximo partido o la tabla de partidos del equipo
-            partido_box = soup.find('div', class_=re.compile(r'(proxim-partit|last-next-match|partit-box)'))
-            if not partido_box:
-                partido_box = soup.find('table', class_=re.compile(r'actes-table'))
+        res = requests.get(eq["api"], headers=headers, timeout=25)
+        if res.status_code != 200:
+            print(f"Error HTTP {res.status_code} para {eq['jugador']}")
+            continue
 
-            if partido_box:
-                # Extraer nombres de equipos
-                loc_elem = partido_box.find(class_=re.compile(r'(local|eq-local)'))
-                vis_elem = partido_box.find(class_=re.compile(r'(visitant|eq-visitant)'))
-                
-                if loc_elem and vis_elem:
-                    p_data["equipo_local"] = loc_elem.get_text(strip=True)
-                    p_data["equipo_visitante"] = vis_elem.get_text(strip=True)
-                
-                # Determinar si Llinars juega en casa
-                p_data["es_local"] = "LLINARS" in p_data["equipo_local"].upper()
-                
-                # Escudos
-                imgs = partido_box.find_all('img')
-                if len(imgs) >= 2:
-                    p_data["escudo_local"] = normalizar_escudo(imgs[0].get('src', ''))
-                    p_data["escudo_visitante"] = normalizar_escudo(imgs[1].get('src', ''))
-                
-                # Fecha y hora
-                data_elem = partido_box.find(class_=re.compile(r'(data|fecha|time)'))
-                if data_elem:
-                    texto_data = data_elem.get_text(strip=True)
-                    match_hora = re.search(r'\b\d{1,2}:\d{2}\b', texto_data)
-                    match_fecha = re.search(r'\b\d{1,2}[/-]\d{1,2}[/-]\d{2,4}\b', texto_data)
-                    
-                    if match_fecha:
-                        p_data["fecha"] = match_fecha.group(0)
-                    if match_hora:
-                        p_data["hora"] = match_hora.group(0)
-                
-                # Campo de fútbol
-                campo_elem = partido_box.find(class_=re.compile(r'(campo|camp|instalacio)'))
-                if campo_elem:
-                    p_data["campo"] = campo_elem.get_text(strip=True)
+        data = res.json()
+        encontrados = []
+
+        # Recorremos todas las jornadas del JSON (devuelto como dict {"1": [...], "2": [...]})
+        for jornada_num, lista_partidos in data.items():
+            if not isinstance(lista_partidos, list):
+                continue
+
+            for p in lista_partidos:
+                loc = str(p.get("NOMBRE_CASA", "") or "")
+                vis = str(p.get("NOMBRE_FUERA", "") or "")
+
+                # Verificamos si juega Llinars
+                if CLUB in loc.upper() or CLUB in vis.upper():
+                    fecha_fmt, hora_fmt, f_date = parse_fecha_hora(p.get("COMIENZO1"))
+                    es_local = CLUB in loc.upper()
+                    campo = p.get("CAMPO") or ("Camp Municipal de Llinars del Vallès" if es_local else f"Campo de {loc}")
+
+                    encontrados.append({
+                        "jugador": eq["jugador"],
+                        "categoria": eq["categoria"],
+                        "equipo_local": loc,
+                        "equipo_visitante": vis,
+                        "escudo_local": escudo_url(p.get("ESCUDO_CASA")),
+                        "escudo_visitante": escudo_url(p.get("ESCUDO_FUERA")),
+                        "es_local": es_local,
+                        "fecha": fecha_fmt,
+                        "hora": hora_fmt,
+                        "campo": campo,
+                        "url": eq["url_web"],
+                        "_fecha_date": f_date
+                    })
+
+        # Filtrar el partido más próximo
+        futuros = [p for p in encontrados if p["_fecha_date"] and p["_fecha_date"] >= hoy]
+        futuros.sort(key=lambda p: p["_fecha_date"])
+
+        if futuros:
+            elegido = futuros[0]
+        elif encontrados:
+            con_fecha = [p for p in encontrados if p["_fecha_date"]]
+            con_fecha.sort(key=lambda p: p["_fecha_date"])
+            elegido = con_fecha[-1] if con_fecha else encontrados[0]
+        else:
+            elegido = None
+
+        if elegido:
+            del elegido["_fecha_date"]
+            partidos.append(elegido)
 
     except Exception as e:
-        print(f"Error parseando {eq['jugador']}: {e}")
-        
-    partidos.append(p_data)
+        print(f"Error con {eq['jugador']}: {e}")
+
+if not partidos:
+    print("ERROR — No se pudo extraer ningún partido de Llinars.")
+    sys.exit(1)
 
 with open("partidos.json", "w", encoding="utf-8") as f:
     json.dump(partidos, f, ensure_ascii=False, indent=2)
 
-print(f"Éxito: Se han generado los datos para {len(partidos)} partidos.")
+print(f"OK: {len(partidos)} partidos guardados correctamente.")
 for p in partidos:
     print(f"  - {p['jugador']}: {p['equipo_local']} vs {p['equipo_visitante']} | {p['fecha']} {p['hora']}")
