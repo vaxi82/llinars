@@ -1,0 +1,26 @@
+[
+  {
+    "dia": "Sábado",
+    "fecha_dia": "Fin de semana",
+    "partidos": [
+      {
+        "jugador": "Erik",
+        "equipo_local": "CE LLINARS",
+        "equipo_visitante": "RIVAL",
+        "escudo_local": "https://www.fcf.cat/img/escudos/club_08027.png",
+        "escudo_visitante": "https://www.fcf.cat/img/logosfcf/FCF_Vermell.svg",
+        "hora": "Por confirmar",
+        "campo": "Campo Municipal Llinars"
+      },
+      {
+        "jugador": "Biel",
+        "equipo_local": "CE LLINARS",
+        "equipo_visitante": "RIVAL",
+        "escudo_local": "https://www.fcf.cat/img/escudos/club_08027.png",
+        "escudo_visitante": "https://www.fcf.cat/img/logosfcf/FCF_Vermell.svg",
+        "hora": "Por confirmar",
+        "campo": "Campo Municipal Llinars"
+      }
+    ]
+  }
+]
