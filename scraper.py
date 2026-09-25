@@ -140,6 +140,10 @@ def main():
                 con_fecha.sort(key=lambda p: p["_fecha_date"])
                 futuros = con_fecha[-1:]  # el último jugado
             if not futuros:
+                # DIAGNÓSTICO: volcar estructura del JSON para ajustar el parser
+                muestra = json.dumps(data, ensure_ascii=False)[:1500]
+                print(f"DIAGNÓSTICO {eq['jugador']} — estructura recibida:")
+                print(muestra)
                 errores.append(f"{eq['jugador']}: la API respondió pero sin partidos de {CLUB}")
             partidos.extend(futuros)
         except Exception as e:
