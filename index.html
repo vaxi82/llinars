@@ -3,11 +3,18 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  
+  <!-- Configuración General y Android (PWA) -->
+  <link rel="manifest" href="manifest.json?v=2">
+  <meta name="theme-color" content="#0b1329">
+  <link rel="icon" type="image/png" href="icono.png?v=2">
+  
+  <!-- Configuración específica para iOS (iPhone / iPad) -->
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="C.E. Llinars">
-  <link rel="apple-touch-icon" sizes="180x180" href="icono.png?v=2">
-  <link rel="icon" href="icono.png?v=2">
+  <meta name="apple-mobile-web-app-title" content="Llinars">
+  <link rel="apple-touch-icon" href="icono.png?v=2">
+  
   <title>Agenda Partidos C.E. Llinars</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <base target="_blank">
@@ -191,8 +198,6 @@
       const secciones = [...document.querySelectorAll('section.weekend')];
       const puntos = [...dots.children];
 
-      // Localizar el fin de semana actual (el lunes de esta semana, o el
-      // primero futuro si esta semana ya no tiene jornada).
       const hoy = new Date(); hoy.setHours(0,0,0,0);
       const lunesHoy = mondayOf(keyOf(hoy));
       let idxActual = semanas.findIndex(s => s.lunes >= lunesHoy);
@@ -221,7 +226,6 @@
       }, { root: main, threshold: 0.6 });
       secciones.forEach(s => io.observe(s));
 
-      // Abrir directamente en el fin de semana actual, nunca en uno pasado.
       marcar(idxActual);
       irA(idxActual, false);
     }
