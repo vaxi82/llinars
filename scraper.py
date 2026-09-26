@@ -3,17 +3,20 @@ import json
 import sys
 from datetime import datetime, date
 
+# ============================================================
+# CONFIGURACIÓN — API de la FCF con endpoints reales de jornadas
+# ============================================================
 JUGADORES = [
     {
         "jugador": "Erik",
         "categoria": "Infantil A",
-        "api_base": "https://www.fcf.cat/api/actesJornada/22/19308233/58162474/58162479/",
+        "api": "https://www.fcf.cat/api/actesJornada/22/19308233/58162474/58162479/1",
         "url_web": "https://www.fcf.cat/ca/competicio?temporadaId=22&disciplinaId=19308233&competicioId=58162474&grupId=58162479"
     },
     {
         "jugador": "Biel",
         "categoria": "Benjamí B",
-        "api_base": "https://www.fcf.cat/api/actesJornada/22/19308235/58162174/60364101/",
+        "api": "https://www.fcf.cat/api/actesJornada/22/19308235/58162174/60364101/1",
         "url_web": "https://www.fcf.cat/ca/competicio?temporadaId=22&disciplinaId=19308235&competicioId=58162174&grupId=60364101"
     }
 ]
@@ -51,65 +54,75 @@ def parse_fecha_hora(comienzo):
     return "Fecha por determinar", "", None
 
 hoy = date.today()
-todos_los_partidos = []
+partidos = []
 
 for eq in JUGADORES:
-    encontrados = []
-    # Consultamos las primeras jornadas para capturar los partidos actuales y futuros
-    for jornada in range(1, 10):
-        try:
-            res = requests.get(f"{eq['api_base']}{jornada}", headers=headers, timeout=10)
-            if res.status_code != 200:
+    try:
+        res = requests.get(eq["api"], headers=headers, timeout=25)
+        if res.status_code != 200:
+            print(f"Error HTTP {res.status_code} para {eq['jugador']}")
+            continue
+
+        data = res.json()
+        encontrados = []
+
+        # Recorremos todas las jornadas del JSON
+        for jornada_num, lista_partidos in data.items():
+            if not isinstance(lista_partidos, list):
                 continue
 
-            data = res.json()
-            if not isinstance(data, dict):
-                continue
+            for p in lista_partidos:
+                loc = str(p.get("NOMBRE_CASA", "") or "")
+                vis = str(p.get("NOMBRE_FUERA", "") or "")
 
-            for j_num, lista in data.items():
-                if not isinstance(lista, list):
-                    continue
-                for p in lista:
-                    loc = str(p.get("NOMBRE_CASA", "") or "")
-                    vis = str(p.get("NOMBRE_FUERA", "") or "")
+                # Verificamos si juega Llinars
+                if CLUB in loc.upper() or CLUB in vis.upper():
+                    fecha_fmt, hora_fmt, f_date = parse_fecha_hora(p.get("COMIENZO1"))
+                    es_local = CLUB in loc.upper()
+                    campo = p.get("CAMPO") or ("Camp Municipal de Llinars del Vallès" if es_local else f"Campo de {loc}")
 
-                    if CLUB in loc.upper() or CLUB in vis.upper():
-                        fecha_fmt, hora_fmt, f_date = parse_fecha_hora(p.get("COMIENZO1"))
-                        es_local = CLUB in loc.upper()
-                        campo = p.get("CAMPO") or ("Camp Municipal de Llinars del Vallès" if es_local else f"Campo de {loc}")
+                    encontrados.append({
+                        "jugador": eq["jugador"],
+                        "categoria": eq["categoria"],
+                        "equipo_local": loc,
+                        "equipo_visitante": vis,
+                        "escudo_local": escudo_url(p.get("ESCUDO_CASA")),
+                        "escudo_visitante": escudo_url(p.get("ESCUDO_FUERA")),
+                        "es_local": es_local,
+                        "fecha": fecha_fmt,
+                        "hora": hora_fmt,
+                        "campo": campo,
+                        "url": eq["url_web"],
+                        "_fecha_date": f_date
+                    })
 
-                        encontrados.append({
-                            "jugador": eq["jugador"],
-                            "categoria": eq["categoria"],
-                            "equipo_local": loc,
-                            "equipo_visitante": vis,
-                            "escudo_local": escudo_url(p.get("ESCUDO_CASA")),
-                            "escudo_visitante": escudo_url(p.get("ESCUDO_FUERA")),
-                            "es_local": es_local,
-                            "fecha": fecha_fmt,
-                            "hora": hora_fmt,
-                            "campo": campo,
-                            "url": eq["url_web"],
-                            "_fecha_date": f_date
-                        })
-        except Exception as e:
-            pass
+        # Filtrar el partido más próximo
+        futuros = [p for p in encontrados if p["_fecha_date"] and p["_fecha_date"] >= hoy]
+        futuros.sort(key=lambda p: p["_fecha_date"])
 
-    # Filtrar partidos desde hoy en adelante (o el más reciente)
-    futuros = [p for p in encontrados if p["_fecha_date"] and p["_fecha_date"] >= hoy]
-    futuros.sort(key=lambda p: p["_fecha_date"])
+        if futuros:
+            elegido = futuros[0]
+        elif encontrados:
+            con_fecha = [p for p in encontrados if p["_fecha_date"]]
+            con_fecha.sort(key=lambda p: p["_fecha_date"])
+            elegido = con_fecha[-1] if con_fecha else encontrados[0]
+        else:
+            elegido = None
 
-    if futuros:
-        todos_los_partidos.extend(futuros[:4]) # Guardar los próximos 4 partidos de cada uno
-    elif encontrados:
-        encontrados.sort(key=lambda p: p["_fecha_date"] if p["_fecha_date"] else date.min)
-        todos_los_partidos.append(encontrados[-1])
+        if elegido:
+            del elegido["_fecha_date"]
+            partidos.append(elegido)
 
-for p in todos_los_partidos:
-    if "_fecha_date" in p:
-        del p["_fecha_date"]
+    except Exception as e:
+        print(f"Error con {eq['jugador']}: {e}")
+
+if not partidos:
+    print("ERROR — No se pudo extraer ningún partido de Llinars.")
+    sys.exit(1)
 
 with open("partidos.json", "w", encoding="utf-8") as f:
-    json.dump(todos_los_partidos, f, ensure_ascii=False, indent=2)
+    json.dump(partidos, f, ensure_ascii=False, indent=2)
 
-print(f"OK: {len(todos_los_partidos)} partidos guardados correctamente.")
+print(f"OK: {len(partidos)} partidos guardados correctamente.")
+for p in partidos:
+    print(f"  - {p['jugador']}: {p['equipo_local']} vs {p['equipo_visitante']} | {p['fecha']} {p['hora']}")
