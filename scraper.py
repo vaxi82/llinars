@@ -13,6 +13,11 @@ from datetime import datetime, date
 # Cada partido usa estos campos (confirmados):
 #   NOMBRE_CASA, NOMBRE_FUERA, ESCUDO_CASA, ESCUDO_FUERA,
 #   CAMPO, COMIENZO1 ("YYYY-MM-DD HH:MM:SS"), CODEQUIPO_CASA, CODEQUIPO_FUERA
+#
+# NOTA (sep 2026): la FCF bloquea las descargas de escudos desde IPs de
+# datacenter (GitHub Actions). Por eso, si una descarga falla, se sirve el
+# escudo LOCAL del club (escudos/club_08027.png, commiteado en el repo)
+# en lugar de la URL remota, que queda rota en la web.
 # ============================================================
 JUGADORES = [
     {
@@ -48,8 +53,7 @@ headers = {
     "Referer": "https://www.fcf.cat/ca/competicio",
 }
 
-# Caché en memoria de esta ejecución: url remota -> ruta local (o la propia
-# url remota si la descarga falla, para no romper el build).
+# Caché en memoria de esta ejecución: url remota -> ruta local.
 _cache_escudos = {}
 
 
@@ -63,7 +67,8 @@ def _nombre_seguro(nombre):
 
 def descargar_escudo(url_remota):
     """Descarga un escudo a escudos/ y devuelve la ruta relativa.
-    Si falla la descarga, devuelve la URL remota como último recurso."""
+    Si falla la descarga, devuelve el escudo LOCAL del club (que siempre
+    existe en el repo) en vez de una URL remota rota."""
     if url_remota in _cache_escudos:
         return _cache_escudos[url_remota]
 
@@ -85,10 +90,11 @@ def descargar_escudo(url_remota):
     except Exception:
         pass
 
-    # Descarga fallida: mejor un enlace remoto roto (con fallback en el HTML)
-    # que un build que se detiene por completo.
-    _cache_escudos[url_remota] = url_remota
-    return url_remota
+    # La FCF bloquea descargas desde datacenters: un enlace remoto roto rompe
+    # la web. Mejor el escudo local del club (ya commiteado en el repo).
+    print(f"AVISO: falló la descarga de {url_remota}; se usa {ESCUDO_CLUB_LOCAL}")
+    _cache_escudos[url_remota] = ESCUDO_CLUB_LOCAL
+    return ESCUDO_CLUB_LOCAL
 
 
 def escudo_url(nombre_fichero):
@@ -165,8 +171,9 @@ def main():
     partidos = []
     errores = []
 
-    # Se descarga siempre, aunque ningún partido lo necesite: lo usa
-    # el <link rel="apple-touch-icon"> del index.html para el acceso directo.
+    # Si escudos/club_08027.png ya existe en el repo (commiteado), no se
+    # descarga; si no, se intenta y, en caso de fallo, se usa la ruta local
+    # igualmente para no romper el build.
     descargar_escudo(ESCUDO_CLUB_URL)
 
     for eq in JUGADORES:
