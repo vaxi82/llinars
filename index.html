@@ -54,7 +54,7 @@
   .filter-btn.active { background: #3b82f6; border-color: #3b82f6; color: white; }
 
   /* CONTENEDOR HORIZONTAL CON SNAP */
-  .semana-container {
+  .dias-container {
     display: flex;
     overflow-x: auto;
     scroll-snap-type: x mandatory;
@@ -65,10 +65,10 @@
     scrollbar-width: none;
     -ms-overflow-style: none;
   }
-  .semana-container::-webkit-scrollbar { display: none; }
+  .dias-container::-webkit-scrollbar { display: none; }
 
-  /* TARJETA DE SEMANA */
-  .semana-card {
+  /* TARJETA DE DÍA */
+  .dia-card {
     flex: 0 0 100%;
     scroll-snap-align: start;
     background: #111827;
@@ -77,22 +77,29 @@
     overflow: hidden;
   }
 
-  /* CABECERA DE SEMANA */
-  .semana-header {
+  /* CABECERA DE DÍA */
+  .dia-header {
     background: linear-gradient(90deg, #1e3a8a, #2563eb);
     padding: 1rem;
     text-align: center;
   }
-  .semana-header.hoy {
+  .dia-card.hoy .dia-header {
     background: linear-gradient(90deg, #92400e, #d97706);
   }
-  .semana-titulo {
-    font-size: 1.1rem;
-    font-weight: 800;
+  .dia-numero-grande {
+    font-size: 2.5rem;
+    font-weight: 900;
+    color: white;
+    line-height: 1;
+    margin-bottom: 0.2rem;
+  }
+  .dia-semana {
+    font-size: 1rem;
+    font-weight: 700;
     color: white;
     margin-bottom: 0.3rem;
   }
-  .semana-fechas {
+  .dia-fecha-completa {
     font-size: 0.8rem;
     color: rgba(255,255,255,0.8);
     font-weight: 500;
@@ -242,6 +249,7 @@
     .escudo-wrap { width: 48px; height: 48px; }
     .equipo-nombre { font-size: 0.68rem; }
     .partido { padding: 0.8rem; }
+    .dia-numero-grande { font-size: 2rem; }
   }
 </style>
 </head>
@@ -269,7 +277,6 @@
 const PLACEHOLDER_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="12" cy="12" r="3"/></svg>`;
 const MESES = ['gener','febrer','març','abril','maig','juny','juliol','agost','setembre','octubre','novembre','desembre'];
 const DIAS_SEMANA = ['Diumenge','Dilluns','Dimarts','Dimecres','Dijous','Divendres','Dissabte'];
-const DIAS_CORTOS = ['dg','dl','dt','dc','dj','dv','ds'];
 
 let partidosData = [];
 let filtroActual = 'todos';
@@ -297,12 +304,7 @@ function aRutaLocal(url) {
   return url;
 }
 
-function esLlinars(nombre) {
-  return nombre && nombre.toUpperCase().includes('LLINARS');
-}
-
 function renderizarEquipo(nombre, escudoUrl) {
-  // ✅ MOSTRAMOS SIEMPRE EL NOMBRE, INCLUIDO LLINARS
   return `
     <div class="equipo">
       <div class="escudo-wrap">
@@ -340,32 +342,25 @@ async function cargarPartidos() {
   }
 }
 
-// Agrupar partidos por semana (fin de semana)
-function agruparPorSemana(partidos) {
-  const semanas = {};
+// Agrupar partidos por FECHA EXACTA (día)
+function agruparPorFecha(partidos) {
+  const grupos = {};
   
   partidos.forEach(p => {
-    const fecha = new Date(p.fecha + 'T12:00:00');
-    const diaSemana = fecha.getDay(); // 0 = domingo, 6 = sábado
-    
-    // Calcular el sábado de esa semana
-    const diff = 6 - diaSemana; // días hasta el sábado
-    const sabado = new Date(fecha);
-    sabado.setDate(fecha.getDate() + diff);
-    
-    const keySabado = sabado.toISOString().split('T')[0];
-    
-    if (!semanas[keySabado]) {
-      semanas[keySabado] = {
-        sabado: sabado,
-        partidos: []
-      };
+    const fecha = p.fecha || '';
+    if (!grupos[fecha]) {
+      grupos[fecha] = [];
     }
-    semanas[keySabado].partidos.push(p);
+    grupos[fecha].push(p);
   });
   
-  // Ordenar por fecha del sábado
-  return Object.values(semanas).sort((a, b) => a.sabado - b.sabado);
+  // Ordenar por fecha
+  return Object.keys(grupos)
+    .sort((a, b) => new Date(a) - new Date(b))
+    .map(fecha => ({
+      fecha: fecha,
+      partidos: grupos[fecha]
+    }));
 }
 
 function googleMapsUrl(campo) {
@@ -394,33 +389,28 @@ function renderizar() {
     return;
   }
 
-  const semanas = agruparPorSemana(filtrados);
+  const dias = agruparPorFecha(filtrados);
   
-  const html = semanas.map((semana, index) => {
-    const sabado = semana.sabado;
-    const domingo = new Date(sabado);
-    domingo.setDate(sabado.getDate() + 1);
+  const html = dias.map((dia, index) => {
+    const fecha = new Date(dia.fecha + 'T12:00:00');
+    const numDia = fecha.getDate();
+    const mes = MESES[fecha.getMonth()];
+    const año = fecha.getFullYear();
+    const diaSemana = DIAS_SEMANA[fecha.getDay()];
+    const esHoy = fecha.toDateString() === new Date().toDateString();
     
-    // Formatear fechas
-    const sabadoStr = `${sabado.getDate()} ${MESES[sabado.getMonth()]}`;
-    const domingoStr = `${domingo.getDate()} ${MESES[domingo.getMonth()]}`;
-    const esEstaSemana = sabado.toDateString() === new Date().toDateString() || 
-                         domingo.toDateString() === new Date().toDateString();
-    
-    // Ordenar partidos por fecha y hora
-    semana.partidos.sort((a, b) => {
-      const fechaA = new Date(a.fecha + 'T' + (a.hora || '00:00'));
-      const fechaB = new Date(b.fecha + 'T' + (b.hora || '00:00'));
-      return fechaA - fechaB;
+    // Ordenar partidos por hora
+    dia.partidos.sort((a, b) => {
+      const horaA = a.hora || '00:00';
+      const horaB = b.hora || '00:00';
+      return horaA.localeCompare(horaB);
     });
     
-    const partidosHtml = semana.partidos.map(p => {
+    const partidosHtml = dia.partidos.map(p => {
       const tag = p.jugador === 'Biel' ? 'biel' : 'erik';
       const lvClass = p.es_local ? 'local' : 'visitante';
       const lvText = p.es_local ? 'Local' : 'Visitant';
       const mapaUrl = googleMapsUrl(p.campo);
-      const fechaPartido = new Date(p.fecha + 'T12:00:00');
-      const diaPartido = DIAS_SEMANA[fechaPartido.getDay()];
 
       return `
         <div class="partido">
@@ -452,27 +442,24 @@ function renderizar() {
     }).join('');
 
     return `
-      <div class="semana-card" data-index="${index}">
-        <div class="semana-header ${esEstaSemana ? 'hoy' : ''}">
-          <div class="semana-titulo">
-            ${sabadoStr} - ${domingoStr}
-          </div>
-          <div class="semana-fechas">
-            ${DIAS_CORTOS[sabado.getDay()]} ${sabado.getDate()} - ${DIAS_CORTOS[domingo.getDay()]} ${domingo.getDate()} ${MESES[sabado.getMonth()]} ${sabado.getFullYear()}
-          </div>
-          ${esEstaSemana ? '<div class="badge-hoy">AQUESTA SETMANA</div>' : ''}
+      <div class="dia-card ${esHoy ? 'hoy' : ''}" data-index="${index}">
+        <div class="dia-header">
+          <div class="dia-numero-grande">${numDia}</div>
+          <div class="dia-semana">${diaSemana}</div>
+          <div class="dia-fecha-completa">${numDia} ${mes} ${año}</div>
+          ${esHoy ? '<div class="badge-hoy">AVUI</div>' : ''}
         </div>
         ${partidosHtml}
       </div>`;
   }).join('');
 
-  contenido.innerHTML = `<div class="semana-container" id="semanaContainer">${html}</div>`;
+  contenido.innerHTML = `<div class="dias-container" id="diasContainer">${html}</div>`;
   
   // Actualizar indicadores
-  actualizarIndicadores(0, semanas.length);
+  actualizarIndicadores(0, dias.length);
   
   // Scroll snap observer
-  const container = document.getElementById('semanaContainer');
+  const container = document.getElementById('diasContainer');
   let currentIndex = 0;
   
   container.addEventListener('scroll', () => {
@@ -482,7 +469,7 @@ function renderizar() {
     
     if (newIndex !== currentIndex) {
       currentIndex = newIndex;
-      actualizarIndicadores(currentIndex, semanas.length);
+      actualizarIndicadores(currentIndex, dias.length);
     }
   });
 }
@@ -508,13 +495,29 @@ document.querySelectorAll('.filter-btn').forEach(btn => {
   });
 });
 
+// Carga inicial
 cargarPartidos();
 
+// ✅ REFRESCO AUTOMÁTICO AL VOLVER DEL SEGUNDO PLANO
 document.addEventListener('visibilitychange', () => {
-  if (document.visibilityState === 'visible') cargarPartidos();
+  if (document.visibilityState === 'visible') {
+    console.log('🔄 Volviendo del segundo plano - refrescando datos...');
+    cargarPartidos();
+  }
 });
+
+// Refresco al mostrar página (back/forward button)
 window.addEventListener('pageshow', (e) => {
-  if (e.persisted) cargarPartidos();
+  if (e.persisted) {
+    console.log('🔄 Página mostrada desde caché - refrescando...');
+    cargarPartidos();
+  }
+});
+
+// Refresco al enfocar la ventana
+window.addEventListener('focus', () => {
+  console.log(' Ventana enfocada - refrescando...');
+  cargarPartidos();
 });
 </script>
 </body>
