@@ -1,2176 +1,557 @@
-<!DOCTYPE html>
-<html lang="ca">
-<head>
-  <meta charset="UTF-8">
+import requests
+import json
+import sys
+from datetime import datetime
 
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0, maximum-scale=1.0"
-  >
 
-  <meta name="theme-color" content="#1e3a8a">
+# ============================================================
+# CONFIGURACIÓN
+# ============================================================
 
-  <meta
-    name="apple-mobile-web-app-capable"
-    content="yes"
-  >
-
-  <meta
-    name="apple-mobile-web-app-status-bar-style"
-    content="black-translucent"
-  >
-
-  <meta
-    name="apple-mobile-web-app-title"
-    content="Llinars FC"
-  >
-
-  <link
-    rel="apple-touch-icon"
-    href="https://www.fcf.cat/img/escudos/club_08027.png"
-  >
-
-  <link
-    rel="shortcut icon"
-    href="https://www.fcf.cat/img/escudos/club_08027.png"
-  >
-
-  <title>C.E. Llinars — Erik & Biel</title>
-
-  <style>
-
-    /* =========================================================
-       VARIABLES
-    ========================================================= */
-
-    :root {
-      --primary: #1e3a8a;
-      --primary-dark: #172554;
-      --secondary: #2563eb;
-      --accent: #d97706;
-
-      --background: #eef2f7;
-      --card: #ffffff;
-      --match-bg: #f8fafc;
-
-      --text: #0f172a;
-      --muted: #64748b;
-      --border: #dbe3ee;
-
-      --success: #15803d;
-
-      --shadow:
-        0 8px 20px rgba(15, 23, 42, 0.08);
-
-      --shadow-small:
-        0 3px 10px rgba(15, 23, 42, 0.06);
-
-      --radius: 18px;
-    }
-
-
-    /* =========================================================
-       RESET
-    ========================================================= */
-
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-
-    html {
-      scroll-behavior: smooth;
-    }
-
-    body {
-      font-family:
-        -apple-system,
-        BlinkMacSystemFont,
-        "Segoe UI",
-        Roboto,
-        Helvetica,
-        Arial,
-        sans-serif;
-
-      background: var(--background);
-      color: var(--text);
-
-      min-height: 100vh;
-
-      padding: 16px;
-      padding-bottom: 30px;
-    }
-
-
-    /* =========================================================
-       CONTENEDOR PRINCIPAL
-    ========================================================= */
-
-    .app {
-      width: 100%;
-      max-width: 1100px;
-      margin: 0 auto;
-    }
-
-
-    /* =========================================================
-       CABECERA
-    ========================================================= */
-
-    .header {
-      background: var(--card);
-
-      border-radius: var(--radius);
-
-      padding: 16px 20px;
-
-      display: flex;
-      align-items: center;
-      justify-content: center;
-
-      gap: 14px;
-
-      box-shadow: var(--shadow);
-
-      margin-bottom: 16px;
-    }
-
-    .header-logo {
-      width: 55px;
-      height: 55px;
-
-      object-fit: contain;
-
-      flex-shrink: 0;
-    }
-
-    .header-text {
-      text-align: left;
-    }
-
-    .header-title {
-      font-size: 1.35rem;
-      font-weight: 800;
-
-      color: var(--primary);
-
-      line-height: 1.15;
-    }
-
-    .header-subtitle {
-      margin-top: 4px;
-
-      font-size: 0.85rem;
-
-      color: var(--muted);
-    }
-
-
-    /* =========================================================
-       NAVEGACIÓN DE JORNADAS
-    ========================================================= */
-
-    .week-navigation {
-      background: var(--card);
-
-      border-radius: var(--radius);
-
-      padding: 12px;
-
-      box-shadow: var(--shadow);
-
-      display: grid;
-
-      grid-template-columns: 50px 1fr 50px;
-
-      align-items: center;
-
-      gap: 10px;
-
-      margin-bottom: 16px;
-    }
-
-    .navigation-button {
-      width: 46px;
-      height: 46px;
-
-      border: none;
-
-      border-radius: 13px;
-
-      background: #eff6ff;
-
-      color: var(--primary);
-
-      font-size: 1.3rem;
-
-      font-weight: 800;
-
-      cursor: pointer;
-
-      display: flex;
-
-      align-items: center;
-      justify-content: center;
-
-      transition:
-        background 0.2s,
-        transform 0.15s;
-    }
-
-    .navigation-button:hover {
-      background: #dbeafe;
-    }
-
-    .navigation-button:active {
-      transform: scale(0.94);
-    }
-
-    .navigation-button:disabled {
-      opacity: 0.35;
-      cursor: default;
-    }
-
-    .week-title {
-      text-align: center;
-    }
-
-    .week-title-main {
-      display: block;
-
-      color: var(--primary);
-
-      font-size: 1.05rem;
-
-      font-weight: 800;
-    }
-
-    .week-title-sub {
-      display: block;
-
-      margin-top: 3px;
-
-      color: var(--muted);
-
-      font-size: 0.8rem;
-    }
-
-
-    /* =========================================================
-       CONTENEDOR CALENDARIO
-    ========================================================= */
-
-    .calendar {
-      display: grid;
-
-      grid-template-columns:
-        repeat(2, minmax(0, 1fr));
-
-      gap: 14px;
-
-      align-items: start;
-    }
-
-
-    /* =========================================================
-       COLUMNA / DÍA
-    ========================================================= */
-
-    .day-column {
-      background: var(--card);
-
-      border-radius: var(--radius);
-
-      border: 1px solid var(--border);
-
-      overflow: hidden;
-
-      box-shadow: var(--shadow);
-    }
-
-    .day-header {
-      padding: 13px 15px;
-
-      background:
-        linear-gradient(
-          135deg,
-          var(--primary),
-          var(--secondary)
-        );
-
-      color: white;
-
-      display: flex;
-
-      align-items: center;
-
-      justify-content: space-between;
-
-      gap: 10px;
-    }
-
-    .day-name {
-      font-size: 1rem;
-
-      font-weight: 800;
-
-      text-transform: uppercase;
-    }
-
-    .day-date {
-      font-size: 0.8rem;
-
-      opacity: 0.9;
-
-      white-space: nowrap;
-    }
-
-    .day-content {
-      padding: 12px;
-    }
-
-
-    /* =========================================================
-       SIN PARTIDO
-    ========================================================= */
-
-    .empty-day {
-      min-height: 130px;
-
-      display: flex;
-
-      flex-direction: column;
-
-      align-items: center;
-
-      justify-content: center;
-
-      text-align: center;
-
-      color: var(--muted);
-
-      gap: 8px;
-    }
-
-    .empty-icon {
-      font-size: 1.8rem;
-
-      opacity: 0.45;
-    }
-
-    .empty-text {
-      font-size: 0.85rem;
-
-      font-weight: 600;
-    }
-
-
-    /* =========================================================
-       PARTIDO
-    ========================================================= */
-
-    .match {
-      background: var(--match-bg);
-
-      border: 1px solid var(--border);
-
-      border-radius: 15px;
-
-      padding: 12px;
-
-      margin-bottom: 10px;
-
-      box-shadow: var(--shadow-small);
-    }
-
-    .match:last-child {
-      margin-bottom: 0;
-    }
-
-
-    /* =========================================================
-       IDENTIFICADOR JUGADOR
-    ========================================================= */
-
-    .player-row {
-      display: flex;
-
-      align-items: center;
-
-      justify-content: space-between;
-
-      gap: 8px;
-
-      margin-bottom: 10px;
-    }
-
-    .player-badge {
-      display: inline-flex;
-
-      align-items: center;
-
-      background: var(--primary);
-
-      color: white;
-
-      border-radius: 7px;
-
-      padding: 4px 8px;
-
-      font-size: 0.72rem;
-
-      font-weight: 800;
-    }
-
-    .category {
-      color: var(--muted);
-
-      font-size: 0.7rem;
-
-      font-weight: 600;
-
-      text-align: right;
-    }
-
-
-    /* =========================================================
-       HORA
-    ========================================================= */
-
-    .match-time {
-      text-align: center;
-
-      margin-bottom: 10px;
-    }
-
-    .time-value {
-      font-size: 1.35rem;
-
-      font-weight: 900;
-
-      color: var(--primary-dark);
-
-      line-height: 1;
-    }
-
-    .time-label {
-      font-size: 0.68rem;
-
-      color: var(--muted);
-
-      margin-top: 3px;
-    }
-
-
-    /* =========================================================
-       EQUIPOS
-    ========================================================= */
-
-    .teams {
-      display: grid;
-
-      grid-template-columns:
-        minmax(0, 1fr)
-        30px
-        minmax(0, 1fr);
-
-      align-items: center;
-
-      gap: 6px;
-    }
-
-    .team {
-      min-width: 0;
-
-      display: flex;
-
-      flex-direction: column;
-
-      align-items: center;
-
-      text-align: center;
-
-      gap: 6px;
-    }
-
-    .team-logo {
-      width: 48px;
-      height: 48px;
-
-      object-fit: contain;
-    }
-
-    .team-name {
-      font-size: 0.76rem;
-
-      font-weight: 700;
-
-      line-height: 1.2;
-
-      word-break: normal;
-    }
-
-    .team-role {
-      color: var(--muted);
-
-      font-size: 0.62rem;
-
-      font-weight: 600;
-    }
-
-    .versus {
-      width: 28px;
-      height: 28px;
-
-      border-radius: 50%;
-
-      background: white;
-
-      border: 1px solid var(--border);
-
-      display: flex;
-
-      align-items: center;
-      justify-content: center;
-
-      font-size: 0.65rem;
-
-      font-weight: 900;
-
-      color: var(--muted);
-    }
-
-
-    /* =========================================================
-       CAMPO
-    ========================================================= */
-
-    .venue {
-      margin-top: 11px;
-
-      padding-top: 9px;
-
-      border-top: 1px solid var(--border);
-
-      text-align: center;
-    }
-
-    .venue-label {
-      font-size: 0.65rem;
-
-      color: var(--muted);
-
-      margin-bottom: 3px;
-    }
-
-    .venue-name {
-      display: block;
-
-      color: var(--secondary);
-
-      text-decoration: none;
-
-      font-size: 0.74rem;
-
-      font-weight: 700;
-
-      line-height: 1.25;
-    }
-
-    .venue-name:hover {
-      text-decoration: underline;
-    }
-
-
-    /* =========================================================
-       TERCERA CASILLA ENTRE SEMANA
-    ========================================================= */
-
-    .weekday-column {
-      grid-column: 1 / -1;
-    }
-
-    .weekday-column .day-content {
-      display: grid;
-
-      grid-template-columns:
-        repeat(2, minmax(0, 1fr));
-
-      gap: 10px;
-    }
-
-
-    /* =========================================================
-       INDICADOR DE PARTIDOS
-    ========================================================= */
-
-    .match-count {
-      background: rgba(255, 255, 255, 0.18);
-
-      padding: 3px 7px;
-
-      border-radius: 20px;
-
-      font-size: 0.65rem;
-
-      font-weight: 700;
-    }
-
-
-    /* =========================================================
-       PIE
-    ========================================================= */
-
-    .footer {
-      text-align: center;
-
-      color: var(--muted);
-
-      font-size: 0.7rem;
-
-      margin-top: 18px;
-    }
-
-
-    /* =========================================================
-       CARGANDO
-    ========================================================= */
-
-    .loading {
-      background: var(--card);
-
-      border-radius: var(--radius);
-
-      padding: 40px 20px;
-
-      text-align: center;
-
-      color: var(--muted);
-
-      box-shadow: var(--shadow);
-    }
-
-    .loading-icon {
-      font-size: 2rem;
-
-      margin-bottom: 10px;
-    }
-
-
-    /* =========================================================
-       ERROR
-    ========================================================= */
-
-    .error {
-      background: #fff7ed;
-
-      border: 1px solid #fed7aa;
-
-      color: #9a3412;
-
-      border-radius: var(--radius);
-
-      padding: 25px;
-
-      text-align: center;
-    }
-
-
-    /* =========================================================
-       RESPONSIVE - MÓVIL
-    ========================================================= */
-
-    @media (max-width: 650px) {
-
-      body {
-        padding: 10px;
-      }
-
-      .header {
-        padding: 13px;
-
-        border-radius: 15px;
-      }
-
-      .header-logo {
-        width: 45px;
-        height: 45px;
-      }
-
-      .header-title {
-        font-size: 1.15rem;
-      }
-
-      .calendar {
-        grid-template-columns:
-          repeat(2, minmax(0, 1fr));
-
-        gap: 8px;
-      }
-
-      .day-content {
-        padding: 8px;
-      }
-
-      .day-header {
-        padding: 10px;
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 2px;
-      }
-
-      .day-name {
-        font-size: 0.85rem;
-      }
-
-      .day-date {
-        font-size: 0.7rem;
-      }
-
-      .match {
-        padding: 9px;
-      }
-
-      .player-row {
-        flex-direction: column;
-
-        align-items: center;
-
-        gap: 3px;
-      }
-
-      .category {
-        text-align: center;
-      }
-
-      .team-logo {
-        width: 40px;
-        height: 40px;
-      }
-
-      .team-name {
-        font-size: 0.68rem;
-      }
-
-      .time-value {
-        font-size: 1.15rem;
-      }
-
-      .weekday-column .day-content {
-        grid-template-columns: 1fr;
-      }
-
-    }
-
-
-    /* =========================================================
-       MÓVIL MUY ESTRECHO
-    ========================================================= */
-
-    @media (max-width: 400px) {
-
-      .calendar {
-        grid-template-columns: 1fr;
-      }
-
-      .weekday-column {
-        grid-column: auto;
-      }
-
-      .weekday-column .day-content {
-        grid-template-columns: 1fr;
-      }
-
-      .day-header {
-        flex-direction: row;
-        align-items: center;
-      }
-
-    }
-
-
-    /* =========================================================
-       PANTALLAS GRANDES / TV
-    ========================================================= */
-
-    @media (min-width: 1000px) {
-
-      body {
-        padding: 25px;
-      }
-
-      .header-title {
-        font-size: 1.5rem;
-      }
-
-      .calendar {
-        gap: 18px;
-      }
-
-      .day-content {
-        padding: 16px;
-      }
-
-      .team-logo {
-        width: 58px;
-        height: 58px;
-      }
-
-      .team-name {
-        font-size: 0.85rem;
-      }
-
-      .time-value {
-        font-size: 1.5rem;
-      }
-
-    }
-
-  </style>
-</head>
-
-
-<body>
-
-<div class="app">
-
-  <!-- =======================================================
-       CABECERA
-  ======================================================== -->
-
-  <header class="header">
-
-    <img
-      class="header-logo"
-      src="https://www.fcf.cat/img/escudos/club_08027.png"
-      alt="Escudo C.E. Llinars"
-    >
-
-    <div class="header-text">
-
-      <div class="header-title">
-        C.E. Llinars
-      </div>
-
-      <div class="header-subtitle">
-        Horaris d'Erik i Biel
-      </div>
-
-    </div>
-
-  </header>
-
-
-  <!-- =======================================================
-       NAVEGACIÓN
-  ======================================================== -->
-
-  <section class="week-navigation">
-
-    <button
-      id="previous-button"
-      class="navigation-button"
-      onclick="cambiarJornada(-1)"
-      aria-label="Jornada anterior"
-    >
-      ‹
-    </button>
-
-    <div class="week-title">
-
-      <span
-        id="week-title-main"
-        class="week-title-main"
-      >
-        Carregant...
-      </span>
-
-      <span
-        id="week-title-sub"
-        class="week-title-sub"
-      >
-        Próxima jornada
-      </span>
-
-    </div>
-
-    <button
-      id="next-button"
-      class="navigation-button"
-      onclick="cambiarJornada(1)"
-      aria-label="Jornada següent"
-    >
-      ›
-    </button>
-
-  </section>
-
-
-  <!-- =======================================================
-       CALENDARIO
-  ======================================================== -->
-
-  <main id="calendar" class="calendar">
-
-    <div class="loading">
-
-      <div class="loading-icon">
-        ⚽
-      </div>
-
-      Carregant partits...
-
-    </div>
-
-  </main>
-
-
-  <div class="footer">
-    C.E. Llinars · Erik & Biel
-  </div>
-
-</div>
-
-
-<script>
-
-  /* =========================================================
-     CONFIGURACIÓN
-  ========================================================= */
-
-  let todosLosPartidos = [];
-
-  let jornadas = [];
-
-  let jornadaActual = 0;
-
-
-  /* =========================================================
-     INICIO
-  ========================================================= */
-
-  document.addEventListener(
-    "DOMContentLoaded",
-    cargarPartidos
-  );
-
-
-  /* =========================================================
-     CARGAR JSON
-  ========================================================= */
-
-  async function cargarPartidos() {
-
-    try {
-
-      const response = await fetch(
-        "partidos.json?v=" + Date.now()
-      );
-
-      if (!response.ok) {
-        throw new Error(
-          "No se ha podido cargar partidos.json"
-        );
-      }
-
-      todosLosPartidos = await response.json();
-
-
-      /*
-       * Eliminamos partidos que ya han pasado.
-       */
-
-      const partidosFuturos =
-        todosLosPartidos.filter(
-          partido => !partidoHaPasado(partido)
-        );
-
-
-      /*
-       * Orden cronológico.
-       */
-
-      partidosFuturos.sort(
-        compararPartidos
-      );
-
-
-      /*
-       * Crear jornadas.
-       */
-
-      jornadas =
-        construirJornadas(partidosFuturos);
-
-
-      /*
-       * Buscar automáticamente la jornada
-       * que contiene el siguiente partido.
-       */
-
-      jornadaActual =
-        encontrarProximaJornada();
-
-
-      renderizarJornada();
-
-
-    } catch (error) {
-
-      console.error(error);
-
-      document.getElementById(
-        "calendar"
-      ).innerHTML = `
-
-        <div class="error">
-
-          <div style="font-size:2rem; margin-bottom:10px;">
-            ⚠️
-          </div>
-
-          <strong>
-            No s'han pogut carregar els partits
-          </strong>
-
-          <div style="margin-top:6px; font-size:0.85rem;">
-            Revisa que el fitxer
-            <b>partidos.json</b>
-            estigui disponible.
-          </div>
-
-        </div>
-
-      `;
-
-    }
-
-  }
-
-
-  /* =========================================================
-     COMPROBAR SI EL PARTIDO YA HA PASADO
-  ========================================================= */
-
-  function partidoHaPasado(partido) {
-
-    if (!partido.fecha) {
-      return false;
+JUGADORES = [
+    {
+        "jugador": "Erik",
+        "categoria": "Infantil A",
+        "api": "https://www.fcf.cat/api/competition/partidos?grupId=58162479",
+        "url_web": "https://www.fcf.cat/ca/competicio?temporadaId=22&disciplinaId=19308233&competicioId=58162474&grupId=58162479"
+    },
+    {
+        "jugador": "Biel",
+        "categoria": "Benjamí B",
+        "api": "https://www.fcf.cat/api/competition/partidos?grupId=60364101",
+        "url_web": "https://www.fcf.cat/ca/competicio?temporadaId=22&disciplinaId=19308235&competicioId=58162174&grupId=60364101"
     }
+]
 
-    const fecha =
-      convertirFecha(partido.fecha);
+CLUB = "LLINARS"
 
-    if (!fecha) {
-      return false;
-    }
-
-
-    /*
-     * Si no tiene hora, consideramos que termina
-     * al final de ese día.
-     */
-
-    if (partido.hora) {
-
-      const hora =
-        convertirHora(partido.hora);
-
-      if (hora) {
-
-        fecha.setHours(
-          hora.horas,
-          hora.minutos,
-          0,
-          0
-        );
-
-      }
-
-    } else {
-
-      fecha.setHours(
-        23,
-        59,
-        59,
-        999
-      );
-
-    }
-
-
-    return fecha < new Date();
+ESCUDO_CLUB = "https://www.fcf.cat/img/escudos/club_08027.png"
 
-  }
+BASE_ESCUDOS = "https://www.fcf.cat/img/escudos/"
 
+CAMPO_CASA = "Camp Municipal de Llinars del Vallès"
 
-  /* =========================================================
-     CONVERTIR DD/MM/YYYY
-  ========================================================= */
+ARCHIVO_SALIDA = "partidos.json"
 
-  function convertirFecha(fechaTexto) {
 
-    if (!fechaTexto) {
-      return null;
-    }
-
-    const partes =
-      fechaTexto.split("/");
-
-    if (partes.length !== 3) {
-      return null;
-    }
-
-    const dia =
-      parseInt(partes[0], 10);
-
-    const mes =
-      parseInt(partes[1], 10) - 1;
-
-    const año =
-      parseInt(partes[2], 10);
+# ============================================================
+# HEADERS
+# ============================================================
 
+HEADERS = {
+    "User-Agent": (
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+        "AppleWebKit/537.36 (KHTML, like Gecko) "
+        "Chrome/154.0.0.0 Safari/537.36"
+    ),
+    "Accept": "application/json, text/plain, */*",
+    "Accept-Language": "es-ES,es;q=0.9",
+    "Referer": "https://www.fcf.cat/"
+}
 
-    const fecha =
-      new Date(
-        año,
-        mes,
-        dia
-      );
 
+# ============================================================
+# ESCUDOS
+# ============================================================
 
-    return isNaN(fecha.getTime())
-      ? null
-      : fecha;
+def escudo_url(valor):
 
-  }
+    if not valor:
+        return ESCUDO_CLUB
 
+    valor = str(valor).strip()
 
-  /* =========================================================
-     CONVERTIR HORA
-  ========================================================= */
+    if not valor:
+        return ESCUDO_CLUB
 
-  function convertirHora(horaTexto) {
+    if valor.startswith("http://") or valor.startswith("https://"):
+        return valor
 
-    if (!horaTexto) {
-      return null;
-    }
-
-    const partes =
-      horaTexto
-        .replace("h", "")
-        .trim()
-        .split(":");
-
-    if (partes.length < 2) {
-      return null;
-    }
+    return BASE_ESCUDOS + valor
 
-    return {
 
-      horas:
-        parseInt(partes[0], 10),
+# ============================================================
+# FECHA
+# ============================================================
 
-      minutos:
-        parseInt(partes[1], 10)
+def parse_fecha(valor):
 
-    };
+    if not valor:
+        return None
 
-  }
+    valor = str(valor).strip()
 
+    formatos = [
+        "%Y-%m-%d %H:%M:%S",
+        "%Y-%m-%d %H:%M"
+    ]
 
-  /* =========================================================
-     FECHA + HORA PARA ORDENAR
-  ========================================================= */
+    for formato in formatos:
+        try:
+            return datetime.strptime(valor, formato)
+        except ValueError:
+            pass
 
-  function fechaCompleta(partido) {
+    try:
+        return datetime.fromisoformat(valor)
+    except ValueError:
+        return None
 
-    const fecha =
-      convertirFecha(partido.fecha);
 
-    if (!fecha) {
-      return new Date(9999, 0, 1);
-    }
-
-    const hora =
-      convertirHora(partido.hora);
+# ============================================================
+# ¿ES PARTIDO DEL LLINARS?
+# ============================================================
 
-    if (hora) {
+def es_partido_llinars(partido):
 
-      fecha.setHours(
-        hora.horas,
-        hora.minutos,
-        0,
-        0
-      );
-
-    }
+    codigo_casa = str(
+        partido.get("CODEQUIPO_CASA", "")
+    )
 
-    return fecha;
+    codigo_fuera = str(
+        partido.get("CODEQUIPO_FUERA", "")
+    )
 
-  }
+    # Descansos
+    if codigo_casa == "-1":
+        return False
 
+    if codigo_fuera == "-1":
+        return False
 
-  /* =========================================================
-     ORDENAR PARTIDOS
-  ========================================================= */
+    local = str(
+        partido.get("NOMBRE_CASA", "") or ""
+    ).upper()
 
-  function compararPartidos(a, b) {
+    visitante = str(
+        partido.get("NOMBRE_FUERA", "") or ""
+    ).upper()
 
     return (
-      fechaCompleta(a) -
-      fechaCompleta(b)
-    );
+        CLUB in local
+        or
+        CLUB in visitante
+    )
 
-  }
 
+# ============================================================
+# EXTRAER PARTIDOS
+# ============================================================
 
-  /* =========================================================
-     CONSTRUIR JORNADAS
-  ========================================================= */
+def extraer_partidos(
+    data,
+    jugador,
+    categoria,
+    url_web
+):
 
-  function construirJornadas(partidos) {
+    resultados = []
 
-    const jornadasMap = new Map();
+    if not isinstance(data, dict):
+        return resultados
 
+    for clave_jornada, lista in data.items():
 
-    partidos.forEach(partido => {
+        if not isinstance(lista, list):
+            continue
 
-      const fecha =
-        convertirFecha(partido.fecha);
+        for partido in lista:
 
-      if (!fecha) {
-        return;
-      }
+            if not isinstance(partido, dict):
+                continue
 
+            if not es_partido_llinars(partido):
+                continue
 
-      /*
-       * La jornada empieza en sábado.
-       *
-       * Si el partido es:
-       *
-       * Lunes-Viernes
-       * → pertenece al próximo fin de semana.
-       *
-       * Sábado
-       * → pertenece a ese sábado.
-       *
-       * Domingo
-       * → pertenece al sábado anterior.
-       */
+            # -----------------------------------------------
+            # Equipos
+            # -----------------------------------------------
 
-      const dia =
-        fecha.getDay();
+            local = str(
+                partido.get(
+                    "NOMBRE_CASA",
+                    ""
+                ) or ""
+            ).replace("\n", " ").strip()
 
-      let inicioJornada =
-        new Date(fecha);
+            visitante = str(
+                partido.get(
+                    "NOMBRE_FUERA",
+                    ""
+                ) or ""
+            ).replace("\n", " ").strip()
 
+            # -----------------------------------------------
+            # Fecha/hora
+            # -----------------------------------------------
 
-      if (dia === 0) {
-
-        /*
-         * Domingo → sábado anterior
-         */
-
-        inicioJornada.setDate(
-          inicioJornada.getDate() - 1
-        );
-
-      } else if (dia >= 1 && dia <= 5) {
-
-        /*
-         * Entre semana → próximo sábado
-         */
-
-        const diasHastaSabado =
-          6 - dia;
-
-        inicioJornada.setDate(
-          inicioJornada.getDate() +
-          diasHastaSabado
-        );
-
-      }
-
-
-      inicioJornada.setHours(
-        0, 0, 0, 0
-      );
-
-
-      const clave =
-        formatoClave(inicioJornada);
-
-
-      if (!jornadasMap.has(clave)) {
-
-        jornadasMap.set(
-          clave,
-          {
-            inicio: inicioJornada,
-            partidos: []
-          }
-        );
-
-      }
-
-
-      jornadasMap
-        .get(clave)
-        .partidos
-        .push(partido);
-
-    });
-
-
-    /*
-     * Convertir a array.
-     */
-
-    const resultado =
-      Array.from(
-        jornadasMap.values()
-      );
-
-
-    /*
-     * Ordenar jornadas.
-     */
-
-    resultado.sort(
-      (a, b) =>
-        a.inicio - b.inicio
-    );
-
-
-    /*
-     * Ordenar partidos dentro de cada jornada.
-     */
-
-    resultado.forEach(
-      jornada => {
-
-        jornada.partidos.sort(
-          compararPartidos
-        );
-
-      }
-    );
-
-
-    return resultado;
-
-  }
-
-
-  /* =========================================================
-     CLAVE FECHA
-  ========================================================= */
-
-  function formatoClave(fecha) {
-
-    return [
-
-      fecha.getFullYear(),
-
-      String(
-        fecha.getMonth() + 1
-      ).padStart(2, "0"),
-
-      String(
-        fecha.getDate()
-      ).padStart(2, "0")
-
-    ].join("-");
-
-  }
-
-
-  /* =========================================================
-     ENCONTRAR PRÓXIMA JORNADA
-  ========================================================= */
-
-  function encontrarProximaJornada() {
-
-    if (jornadas.length === 0) {
-      return 0;
-    }
-
-
-    const ahora =
-      new Date();
-
-
-    for (
-      let i = 0;
-      i < jornadas.length;
-      i++
-    ) {
-
-      const hayPartidoFuturo =
-        jornadas[i].partidos.some(
-          partido =>
-            fechaCompleta(partido) >= ahora
-        );
-
-
-      if (hayPartidoFuturo) {
-        return i;
-      }
-
-    }
-
-
-    return 0;
-
-  }
-
-
-  /* =========================================================
-     RENDERIZAR JORNADA
-  ========================================================= */
-
-  function renderizarJornada() {
-
-    const calendar =
-      document.getElementById(
-        "calendar"
-      );
-
-
-    if (jornadas.length === 0) {
-
-      document.getElementById(
-        "week-title-main"
-      ).textContent =
-        "Sense partits";
-
-      document.getElementById(
-        "week-title-sub"
-      ).textContent =
-        "No hi ha partits programats";
-
-
-      calendar.innerHTML = `
-
-        <div
-          class="day-column"
-          style="grid-column:1/-1;"
-        >
-
-          <div class="day-content">
-
-            <div class="empty-day">
-
-              <div class="empty-icon">
-                ⚽
-              </div>
-
-              <div class="empty-text">
-                No hi ha partits programats.
-              </div>
-
-            </div>
-
-          </div>
-
-        </div>
-
-      `;
-
-      actualizarBotones();
-
-      return;
-
-    }
-
-
-    const jornada =
-      jornadas[jornadaActual];
-
-
-    actualizarTitulo(
-      jornada
-    );
-
-
-    /*
-     * Separar partidos por día.
-     */
-
-    const partidosSabado = [];
-    const partidosDomingo = [];
-    const partidosEntreSemana = [];
-
-
-    jornada.partidos.forEach(
-      partido => {
-
-        const fecha =
-          convertirFecha(
-            partido.fecha
-          );
-
-        const dia =
-          fecha.getDay();
-
-
-        if (dia === 6) {
-
-          partidosSabado.push(
-            partido
-          );
-
-        } else if (dia === 0) {
-
-          partidosDomingo.push(
-            partido
-          );
-
-        } else {
-
-          partidosEntreSemana.push(
-            partido
-          );
-
-        }
-
-      }
-    );
-
-
-    /*
-     * Generar sábado y domingo.
-     */
-
-    let html = "";
-
-    html += crearColumnaDia(
-      "SÁBADO",
-      obtenerFechaDia(
-        jornada.inicio,
-        0
-      ),
-      partidosSabado
-    );
-
-
-    html += crearColumnaDia(
-      "DOMINGO",
-      obtenerFechaDia(
-        jornada.inicio,
-        1
-      ),
-      partidosDomingo
-    );
-
-
-    /*
-     * Si existen partidos entre semana,
-     * crear tercera zona.
-     */
-
-    if (
-      partidosEntreSemana.length > 0
-    ) {
-
-      html += crearColumnaEntreSemana(
-        partidosEntreSemana
-      );
-
-    }
-
-
-    calendar.innerHTML = html;
-
-
-    actualizarBotones();
-
-  }
-
-
-  /* =========================================================
-     OBTENER FECHA DE DÍA
-  ========================================================= */
-
-  function obtenerFechaDia(
-    inicio,
-    dias
-  ) {
-
-    const fecha =
-      new Date(inicio);
-
-    fecha.setDate(
-      fecha.getDate() + dias
-    );
-
-    return fecha;
-
-  }
-
-
-  /* =========================================================
-     CREAR COLUMNA
-  ========================================================= */
-
-  function crearColumnaDia(
-    nombre,
-    fecha,
-    partidos
-  ) {
-
-    const fechaTexto =
-      formatearFechaCorta(
-        fecha
-      );
-
-
-    return `
-
-      <section class="day-column">
-
-        <div class="day-header">
-
-          <div>
-
-            <div class="day-name">
-              ${nombre}
-            </div>
-
-            <div class="day-date">
-              ${fechaTexto}
-            </div>
-
-          </div>
-
-          <span class="match-count">
-            ${
-              partidos.length
-            }
-            ${
-              partidos.length === 1
-                ? "PARTIDO"
-                : "PARTIDOS"
-            }
-          </span>
-
-        </div>
-
-        <div class="day-content">
-
-          ${
-            partidos.length === 0
-
-              ? crearDiaVacio()
-
-              : partidos
-                  .map(
-                    crearPartidoHTML
-                  )
-                  .join("")
-          }
-
-        </div>
-
-      </section>
-
-    `;
-
-  }
-
-
-  /* =========================================================
-     COLUMNA ENTRE SEMANA
-  ========================================================= */
-
-  function crearColumnaEntreSemana(
-    partidos
-  ) {
-
-    return `
-
-      <section class="
-        day-column
-        weekday-column
-      ">
-
-        <div class="day-header">
-
-          <div>
-
-            <div class="day-name">
-              ENTRE SETMANA
-            </div>
-
-            <div class="day-date">
-              Partits fora del cap de setmana
-            </div>
-
-          </div>
-
-          <span class="match-count">
-            ${
-              partidos.length
-            }
-            ${
-              partidos.length === 1
-                ? "PARTIDO"
-                : "PARTIDOS"
-            }
-          </span>
-
-        </div>
-
-        <div class="day-content">
-
-          ${
-            partidos
-              .map(
-                crearPartidoHTML
-              )
-              .join("")
-          }
-
-        </div>
-
-      </section>
-
-    `;
-
-  }
-
-
-  /* =========================================================
-     DÍA VACÍO
-  ========================================================= */
-
-  function crearDiaVacio() {
-
-    return `
-
-      <div class="empty-day">
-
-        <div class="empty-icon">
-          ⚽
-        </div>
-
-        <div class="empty-text">
-          Sense partit
-        </div>
-
-      </div>
-
-    `;
-
-  }
-
-
-  /* =========================================================
-     CREAR PARTIDO
-  ========================================================= */
-
-  function crearPartidoHTML(
-    partido
-  ) {
-
-    const mapaUrl =
-      partido.campo
-
-        ? `https://www.google.com/maps/search/?api=1&query=${
-            encodeURIComponent(
-              partido.campo
+            comienzo = partido.get(
+                "COMIENZO1"
             )
-          }`
 
-        : "#";
+            fecha_dt = parse_fecha(
+                comienzo
+            )
 
+            if fecha_dt:
 
-    const hora =
-      partido.hora
-        ? partido.hora
-        : "--:--";
+                fecha = fecha_dt.strftime(
+                    "%Y-%m-%d"
+                )
 
+                hora = fecha_dt.strftime(
+                    "%H:%M"
+                )
 
-    return `
+            else:
 
-      <article class="match">
+                fecha = ""
+                hora = ""
 
-        <!-- JUGADOR -->
+            # -----------------------------------------------
+            # Local / visitante
+            # -----------------------------------------------
 
-        <div class="player-row">
+            es_local = (
+                CLUB in local.upper()
+            )
 
-          <span class="player-badge">
+            # -----------------------------------------------
+            # Campo
+            # -----------------------------------------------
 
-            ⚽
-            ${escaparHTML(
-              partido.jugador ||
-              "Jugador"
-            )}
+            campo = partido.get(
+                "CAMPO"
+            )
 
-          </span>
+            if not campo:
 
-          <span class="category">
+                if es_local:
+                    campo = CAMPO_CASA
+                else:
+                    campo = f"Campo de {local}"
 
-            ${
-              escaparHTML(
-                partido.categoria ||
-                ""
-              )
+            campo = str(
+                campo
+            ).replace("\n", " ").strip()
+
+            # -----------------------------------------------
+            # Jornada
+            # -----------------------------------------------
+
+            jornada = str(
+                partido.get(
+                    "JORNADA",
+                    clave_jornada
+                )
+            )
+
+            # -----------------------------------------------
+            # Crear objeto
+            # -----------------------------------------------
+
+            resultado = {
+                "jugador": jugador,
+                "categoria": categoria,
+                "jornada": jornada,
+
+                "equipo_local": local,
+                "equipo_visitante": visitante,
+
+                "escudo_local": escudo_url(
+                    partido.get("ESCUDO_CASA")
+                ),
+
+                "escudo_visitante": escudo_url(
+                    partido.get("ESCUDO_FUERA")
+                ),
+
+                "es_local": es_local,
+
+                "fecha": fecha,
+                "hora": hora,
+
+                "campo": campo,
+
+                "url": url_web
             }
 
-          </span>
+            resultados.append(
+                resultado
+            )
 
-        </div>
-
-
-        <!-- HORA -->
-
-        <div class="match-time">
-
-          <div class="time-value">
-            ${escaparHTML(hora)}
-          </div>
-
-          <div class="time-label">
-            HORA DEL PARTIDO
-          </div>
-
-        </div>
+    return resultados
 
 
-        <!-- EQUIPOS -->
+# ============================================================
+# ORDENAR
+# ============================================================
 
-        <div class="teams">
+def clave_orden(partido):
 
-          <!-- LOCAL -->
+    fecha = partido.get(
+        "fecha",
+        ""
+    )
 
-          <div class="team">
+    hora = partido.get(
+        "hora",
+        "00:00"
+    )
 
-            <img
-              class="team-logo"
-              src="${
-                escaparAtributo(
-                  partido.escudo_local
-                )
-              }"
-              alt="${
-                escaparAtributo(
-                  partido.equipo_local
-                )
-              }"
-              onerror="this.style.visibility='hidden'"
-            >
+    try:
 
-            <span class="team-name">
-              ${
-                escaparHTML(
-                  partido.equipo_local ||
-                  "Local"
-                )
-              }
-            </span>
-
-            <span class="team-role">
-              LOCAL
-            </span>
-
-          </div>
-
-
-          <!-- VS -->
-
-          <div class="versus">
-            VS
-          </div>
-
-
-          <!-- VISITANTE -->
-
-          <div class="team">
-
-            <img
-              class="team-logo"
-              src="${
-                escaparAtributo(
-                  partido.escudo_visitante
-                )
-              }"
-              alt="${
-                escaparAtributo(
-                  partido.equipo_visitante
-                )
-              }"
-              onerror="this.style.visibility='hidden'"
-            >
-
-            <span class="team-name">
-              ${
-                escaparHTML(
-                  partido.equipo_visitante ||
-                  "Visitant"
-                )
-              }
-            </span>
-
-            <span class="team-role">
-              VISITANTE
-            </span>
-
-          </div>
-
-        </div>
-
-
-        <!-- CAMPO -->
-
-        ${
-          partido.campo
-
-            ? `
-
-              <div class="venue">
-
-                <div class="venue-label">
-                  📍 CAMP
-                </div>
-
-                <a
-                  class="venue-name"
-                  href="${mapaUrl}"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  ${escaparHTML(
-                    partido.campo
-                  )}
-                </a>
-
-              </div>
-
-            `
-
-            : ""
-
-        }
-
-      </article>
-
-    `;
-
-  }
-
-
-  /* =========================================================
-     ACTUALIZAR TÍTULO
-  ========================================================= */
-
-  function actualizarTitulo(
-    jornada
-  ) {
-
-    const inicio =
-      jornada.inicio;
-
-
-    const domingo =
-      new Date(inicio);
-
-    domingo.setDate(
-      domingo.getDate() + 1
-    );
-
-
-    document.getElementById(
-      "week-title-main"
-    ).textContent =
-      `Cap de setmana · ${
-        formatearRango(
-          inicio,
-          domingo
+        return datetime.strptime(
+            f"{fecha} {hora}",
+            "%Y-%m-%d %H:%M"
         )
-      }`;
+
+    except ValueError:
+
+        return datetime.max
 
 
-    document.getElementById(
-      "week-title-sub"
-    ).textContent =
-      "Pròxima jornada";
+# ============================================================
+# MAIN
+# ============================================================
 
-  }
+def main():
 
+    todos = []
 
-  /* =========================================================
-     RANGO FECHAS
-  ========================================================= */
+    errores = []
 
-  function formatearRango(
-    inicio,
-    fin
-  ) {
+    print()
+    print("=" * 70)
+    print("        SCRAPER FCF - LLINARS")
+    print("=" * 70)
+    print()
 
-    const opciones = {
-      day: "numeric",
-      month: "long"
-    };
+    print(
+        "Ejecutado:",
+        datetime.now().strftime(
+            "%d/%m/%Y %H:%M:%S"
+        )
+    )
 
+    print()
 
-    return `${
-      inicio.toLocaleDateString(
-        "ca-ES",
-        opciones
-      )
-    } – ${
-      fin.toLocaleDateString(
-        "ca-ES",
-        opciones
-      )
-    }`;
+    # ========================================================
+    # ERIK / BIEL
+    # ========================================================
 
-  }
+    for config in JUGADORES:
 
+        jugador = config["jugador"]
 
-  /* =========================================================
-     FECHA CORTA
-  ========================================================= */
+        print("-" * 70)
+        print(
+            f"Consultando {jugador}..."
+        )
+        print("-" * 70)
 
-  function formatearFechaCorta(
-    fecha
-  ) {
+        try:
 
-    return fecha.toLocaleDateString(
-      "ca-ES",
-      {
-        day: "2-digit",
-        month: "2-digit",
-        year: "numeric"
-      }
-    );
+            respuesta = requests.get(
+                config["api"],
+                headers=HEADERS,
+                timeout=30
+            )
 
-  }
+            print(
+                "HTTP:",
+                respuesta.status_code
+            )
 
+            if respuesta.status_code != 200:
 
-  /* =========================================================
-     NAVEGAR JORNADAS
-  ========================================================= */
+                errores.append(
+                    f"{jugador}: HTTP "
+                    f"{respuesta.status_code}"
+                )
 
-  function cambiarJornada(
-    direccion
-  ) {
+                print(
+                    "ERROR HTTP"
+                )
 
-    const nueva =
-      jornadaActual + direccion;
+                continue
 
+            try:
 
-    if (
-      nueva < 0 ||
-      nueva >= jornadas.length
-    ) {
+                data = respuesta.json()
 
-      return;
+            except Exception as e:
 
-    }
+                errores.append(
+                    f"{jugador}: JSON inválido: {e}"
+                )
 
+                print(
+                    "ERROR: respuesta no JSON"
+                )
 
-    jornadaActual =
-      nueva;
+                continue
 
+            encontrados = extraer_partidos(
+                data,
+                jugador,
+                config["categoria"],
+                config["url_web"]
+            )
 
-    renderizarJornada();
+            print(
+                "Partidos encontrados:",
+                len(encontrados)
+            )
 
+            # -----------------------------------------------
+            # Mostrar todos los partidos encontrados
+            # -----------------------------------------------
 
-    /*
-     * Volver arriba.
-     */
+            for partido in encontrados:
 
-    window.scrollTo({
-      top: 0,
-      behavior: "smooth"
-    });
+                print(
+                    f"  ✓ "
+                    f"{partido['fecha']} "
+                    f"{partido['hora']} | "
+                    f"{partido['equipo_local']} "
+                    f"vs "
+                    f"{partido['equipo_visitante']} | "
+                    f"J{partido['jornada']}"
+                )
 
-  }
+            todos.extend(
+                encontrados
+            )
 
+        except Exception as e:
 
-  /* =========================================================
-     BOTONES
-  ========================================================= */
+            errores.append(
+                f"{jugador}: {e}"
+            )
 
-  function actualizarBotones() {
+            print(
+                "ERROR:",
+                e
+            )
 
-    document.getElementById(
-      "previous-button"
-    ).disabled =
-      jornadaActual <= 0;
-
-
-    document.getElementById(
-      "next-button"
-    ).disabled =
-      jornadaActual >=
-      jornadas.length - 1;
-
-  }
-
-
-  /* =========================================================
-     ESCAPAR HTML
-  ========================================================= */
-
-  function escaparHTML(
-    valor
-  ) {
-
-    if (
-      valor === null ||
-      valor === undefined
-    ) {
-
-      return "";
-
-    }
+        print()
 
 
-    return String(valor)
-      .replace(
-        /&/g,
-        "&amp;"
-      )
-      .replace(
-        /</g,
-        "&lt;"
-      )
-      .replace(
-        />/g,
-        "&gt;"
-      )
-      .replace(
-        /"/g,
-        "&quot;"
-      )
-      .replace(
-        /'/g,
-        "&#039;"
-      );
+    # ========================================================
+    # ELIMINAR DUPLICADOS
+    # ========================================================
 
-  }
+    unicos = {}
+
+    for partido in todos:
+
+        clave = (
+            partido["jugador"],
+            partido["fecha"],
+            partido["hora"],
+            partido["equipo_local"],
+            partido["equipo_visitante"]
+        )
+
+        unicos[clave] = partido
 
 
-  /* =========================================================
-     ESCAPAR ATRIBUTOS
-  ========================================================= */
+    todos = list(
+        unicos.values()
+    )
 
-  function escaparAtributo(
-    valor
-  ) {
 
-    return escaparHTML(
-      valor || ""
-    );
+    # ========================================================
+    # ORDENAR
+    # ========================================================
 
-  }
+    todos.sort(
+        key=clave_orden
+    )
 
-</script>
 
-</body>
-</html>
+    # ========================================================
+    # GUARDAR
+    # ========================================================
+
+    try:
+
+        with open(
+            ARCHIVO_SALIDA,
+            "w",
+            encoding="utf-8"
+        ) as f:
+
+            json.dump(
+                todos,
+                f,
+                ensure_ascii=False,
+                indent=2
+            )
+
+    except Exception as e:
+
+        print(
+            "ERROR guardando partidos.json:",
+            e
+        )
+
+        sys.exit(1)
+
+
+    # ========================================================
+    # RESUMEN
+    # ========================================================
+
+    print("=" * 70)
+    print(
+        f"OK: {len(todos)} partidos guardados"
+    )
+    print(
+        f"Archivo: {ARCHIVO_SALIDA}"
+    )
+    print("=" * 70)
+
+    print()
+
+    # Contadores
+    erik = sum(
+        1 for p in todos
+        if p["jugador"] == "Erik"
+    )
+
+    biel = sum(
+        1 for p in todos
+        if p["jugador"] == "Biel"
+    )
+
+    print(
+        f"Erik: {erik} partidos"
+    )
+
+    print(
+        f"Biel: {biel} partidos"
+    )
+
+    print()
+
+    if errores:
+
+        print("AVISOS:")
+
+        for error in errores:
+            print(
+                " -",
+                error
+            )
+
+    print()
+
+
+# ============================================================
+# EJECUCIÓN
+# ============================================================
+
+if __name__ == "__main__":
+    main()
