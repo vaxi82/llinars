@@ -3,48 +3,33 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Partits C.E. Llinars — Erik & Biel</title>
+  <title>C.E. Llinars — Erik & Biel</title>
 
-  <!-- Configuración para App Web en iPhone (Icono al añadir a Pantalla de Inicio) -->
+  <!-- WebApp Config para iPhone -->
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Llinars FC">
   <link rel="apple-touch-icon" href="https://www.fcf.cat/img/escudos/club_08027.png">
   <link rel="shortcut icon" href="https://www.fcf.cat/img/escudos/club_08027.png">
 
-  <!-- Estilos Modernos y Tarjetas -->
   <style>
     :root {
       --primary: #1e3a8a;
       --secondary: #2563eb;
-      --accent: #d97706;
       --bg-color: #f1f5f9;
       --card-bg: #ffffff;
       --text-dark: #0f172a;
       --text-muted: #64748b;
-      --border: #e2e8f0;
-      --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.03);
+      --border: #cbd5e1;
+      --shadow: 0 4px 12px rgba(0,0,0,0.08);
     }
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    }
-
-    body {
-      background-color: var(--bg-color);
-      color: var(--text-dark);
-      padding: 16px;
-      max-width: 600px;
-      margin: 0 auto;
-      padding-bottom: 40px;
-    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    body { background-color: var(--bg-color); color: var(--text-dark); padding: 12px; max-width: 800px; margin: 0 auto; }
 
     header {
       text-align: center;
-      margin-bottom: 20px;
+      margin-bottom: 16px;
       padding: 12px;
       background: white;
       border-radius: 16px;
@@ -54,78 +39,59 @@
       justify-content: center;
       gap: 12px;
     }
+    header img { width: 42px; height: 42px; object-fit: contain; }
+    header h1 { font-size: 1.2rem; color: var(--primary); font-weight: 800; }
 
-    header img {
-      width: 48px;
-      height: 48px;
-      object-fit: contain;
-    }
-
-    header h1 {
-      font-size: 1.25rem;
-      color: var(--primary);
-      font-weight: 800;
-      line-height: 1.2;
-    }
-
-    /* Tarjeta Principal por Grupo de Días */
-    .block-card {
-      background: var(--card-bg);
-      border-radius: 20px;
-      padding: 16px;
+    .weekend-block {
+      background: #e2e8f0;
+      border-radius: 16px;
+      padding: 12px;
       margin-bottom: 20px;
+    }
+    .weekend-title {
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: var(--primary);
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* Pareja de Tarjetas en paralelo (Sábado y Domingo) */
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 12px;
+    }
+
+    .match-card {
+      background: var(--card-bg);
+      border-radius: 14px;
+      padding: 14px;
       box-shadow: var(--shadow);
       border: 1px solid var(--border);
-    }
-
-    .block-header {
       display: flex;
-      align-items: center;
+      flex-direction: column;
       justify-content: space-between;
-      border-bottom: 2px solid var(--bg-color);
-      padding-bottom: 10px;
-      margin-bottom: 16px;
     }
 
-    .block-title {
-      font-size: 1.1rem;
-      font-weight: 700;
-      color: var(--primary);
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .block-badge {
-      background: #dbeafe;
-      color: var(--secondary);
-      font-size: 0.75rem;
-      padding: 4px 10px;
-      border-radius: 20px;
-      font-weight: 600;
-    }
-
-    /* Partido individual dentro de la tarjeta */
-    .match-item {
-      background: #f8fafc;
-      border-radius: 14px;
-      padding: 12px;
-      margin-bottom: 12px;
-      border: 1px solid var(--border);
-    }
-
-    .match-item:last-child {
-      margin-bottom: 0;
-    }
-
-    .player-tag {
+    .day-badge {
       display: inline-block;
       background: var(--primary);
       color: white;
       font-size: 0.75rem;
       font-weight: 700;
-      padding: 3px 8px;
+      padding: 4px 8px;
       border-radius: 6px;
+      margin-bottom: 8px;
+      align-self: flex-start;
+    }
+
+    .player-name {
+      font-weight: 700;
+      color: var(--secondary);
+      font-size: 0.9rem;
       margin-bottom: 8px;
     }
 
@@ -133,76 +99,45 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 8px;
       margin: 10px 0;
     }
-
     .team {
       flex: 1;
       display: flex;
       flex-direction: column;
       align-items: center;
       text-align: center;
-      gap: 6px;
+      gap: 4px;
     }
+    .team img { width: 45px; height: 45px; object-fit: contain; }
+    .team span { font-size: 0.8rem; font-weight: 600; line-height: 1.1; }
 
-    .team img {
-      width: 44px;
-      height: 44px;
-      object-fit: contain;
-    }
-
-    .team span {
-      font-size: 0.82rem;
-      font-weight: 600;
-      line-height: 1.2;
-    }
-
-    .vs-badge {
-      font-size: 0.75rem;
+    .vs-circle {
+      font-size: 0.7rem;
       font-weight: 800;
       color: var(--text-muted);
-      background: white;
+      background: #f1f5f9;
       border: 1px solid var(--border);
       border-radius: 50%;
-      width: 28px;
-      height: 28px;
+      width: 26px;
+      height: 26px;
       display: flex;
       align-items: center;
       justify-content: center;
-      flex-shrink: 0;
     }
 
-    .match-details {
+    .details {
+      border-top: 1px solid #f1f5f9;
+      padding-top: 8px;
+      font-size: 0.8rem;
+      color: var(--text-muted);
       display: flex;
       flex-direction: column;
-      gap: 6px;
-      font-size: 0.82rem;
-      color: var(--text-muted);
-      margin-top: 8px;
-      padding-top: 8px;
-      border-top: 1px stroke var(--border);
+      gap: 4px;
     }
+    .details a { color: var(--secondary); text-decoration: none; font-weight: 600; }
 
-    .detail-row {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .detail-row a {
-      color: var(--secondary);
-      text-decoration: none;
-      font-weight: 600;
-    }
-
-    .detail-row a:hover {
-      text-decoration: underline;
-    }
-
-    /* Botón Ver Más Jornadas */
     .load-more-btn {
-      display: block;
       width: 100%;
       padding: 12px;
       background: var(--secondary);
@@ -210,80 +145,56 @@
       border: none;
       border-radius: 12px;
       font-size: 0.95rem;
-      font-weight: 600;
+      font-weight: 700;
       cursor: pointer;
-      text-align: center;
-      box-shadow: var(--shadow);
       margin-top: 10px;
     }
-
-    .load-more-btn:active {
-      transform: scale(0.98);
-    }
-
-    .hidden {
-      display: none;
-    }
+    .hidden { display: none; }
   </style>
 </head>
 <body>
 
   <header>
-    <img src="https://www.fcf.cat/img/escudos/club_08027.png" alt="C.E. Llinars Escudo">
-    <h1>C.E. Llinars<br><span style="font-size: 0.85rem; font-weight: normal; color: var(--text-muted);">Horaris Erik i Biel</span></h1>
+    <img src="https://www.fcf.cat/img/escudos/club_08027.png" alt="Escudo Llinars">
+    <h1>C.E. Llinars<br><span style="font-size:0.85rem; font-weight:normal; color:var(--text-muted);">Erik i Biel</span></h1>
   </header>
 
   <main id="app-container">
-    <div style="text-align:center; padding: 20px; color: var(--text-muted);">Carregant partits...</div>
+    <div style="text-align:center; padding:20px;">Carregant partits...</div>
   </main>
 
-  <button id="btn-more" class="load-more-btn hidden" onclick="mostrarMesPartits()">Ver Próximos Fines de Semana</button>
+  <button id="btn-more" class="load-more-btn hidden" onclick="mostrarMes()">Ver Próximos Fines de Semana</button>
 
   <script>
-    let todosLosPartidos = [];
-    let partidosMostrados = 0;
-
     async function cargarPartidos() {
       try {
         const response = await fetch('partidos.json?v=' + new Date().getTime());
-        todosLosPartidos = await response.json();
-
-        // Filtrar y ordenar por fecha
-        const hoy = new Date();
-        hoy.setHours(0, 0, 0, 0);
-
-        // Agrupar por bloques de día/fin de semana
-        const agrupados = agruparPorBloque(todosLosPartidos);
-        renderizarPartidos(agrupados);
-
+        const partidos = await response.json();
+        renderizar(partidos);
       } catch (e) {
-        document.getElementById('app-container').innerHTML = `
-          <div style="text-align:center; color:red; padding: 20px;">
-            Error en carregar els partits. Revisa la connexió.
-          </div>`;
+        document.getElementById('app-container').innerHTML = '<div style="text-align:center; color:red;">Error en carregar els partits.</div>';
       }
     }
 
-    function agruparPorBloque(partidos) {
-      const bloques = {};
+    function renderizar(partidos) {
+      const container = document.getElementById('app-container');
+      container.innerHTML = '';
 
+      // Agrupar por Fines de semana / Bloques
+      const bloques = {};
       partidos.forEach(p => {
-        // Convertir formato DD/MM/YYYY a Date
-        let key = p.fecha;
+        let key = "Pròxims Partits";
         if (p.fecha && p.fecha.includes('/')) {
-          const partes = p.fecha.split('/');
-          const d = new Date(partes[2], partes[1] - 1, partes[0]);
-          const diaSemana = d.getDay(); // 0: Dom, 6: Sáb
+          const [d, m, y] = p.fecha.split('/');
+          const dateObj = new Date(y, m - 1, d);
+          const diaSemana = dateObj.getDay();
 
           if (diaSemana === 6 || diaSemana === 0) {
-            // Es fin de semana -> Agrupar sábado y domingo en la misma tarjeta
-            const sabado = new Date(d);
-            if (diaSemana === 0) sabado.setDate(sabado.getDate() - 1); // retroceder a sábado
-            key = `Cap de Setmana (${sabado.getDate()}/${sabado.getMonth()+1})`;
+            const sab = new Date(dateObj);
+            if (diaSemana === 0) sab.setDate(sab.getDate() - 1);
+            key = `Cap de Setmana (${sab.getDate()}/${sab.getMonth()+1})`;
           } else {
-            // Entre semana -> Tarjeta de día único
-            const diasNom = ['Diumenge', 'Dilluns', 'Dimarts', 'Dimecres', 'Dijous', 'Divendres', 'Dissabte'];
-            key = `${diasNom[diaSemana]} ${p.fecha}`;
+            key = `Entre Setmana (${p.fecha})`;
           }
         }
 
@@ -291,72 +202,54 @@
         bloques[key].push(p);
       });
 
-      return bloques;
-    }
-
-    function renderizarPartidos(bloques) {
-      const container = document.getElementById('app-container');
-      container.innerHTML = '';
-
       const keys = Object.keys(bloques);
-      if (keys.length === 0) {
-        container.innerHTML = '<div style="text-align:center;">No hi ha partits programats.</div>';
-        return;
-      }
 
-      keys.forEach((tituloBloque, index) => {
-        const partidosBloque = bloques[tituloBloque];
+      keys.forEach((bloqueKey, idx) => {
+        const wrapper = document.createElement('div');
+        wrapper.className = `weekend-block ${idx >= 1 ? 'extra-block hidden' : ''}`;
 
-        const card = document.createElement('div');
-        card.className = `block-card ${index >= 2 ? 'extra-card hidden' : ''}`;
-
-        let partidosHtml = partidosBloque.map(p => {
+        let cardsHtml = bloques[bloqueKey].map(p => {
           const mapaUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(p.campo)}`;
           return `
-            <div class="match-item">
-              <span class="player-tag">${p.jugador} (${p.categoria})</span>
-              <div class="match-vs">
-                <div class="team">
-                  <img src="${p.escudo_local}" alt="${p.equipo_local}">
-                  <span>${p.equipo_local}</span>
-                </div>
-                <div class="vs-badge">VS</div>
-                <div class="team">
-                  <img src="${p.escudo_visitante}" alt="${p.equipo_visitante}">
-                  <span>${p.equipo_visitante}</span>
+            <div class="match-card">
+              <div>
+                <span class="day-badge">${p.fecha}</span>
+                <div class="player-name">${p.jugador} (${p.categoria})</div>
+                <div class="match-vs">
+                  <div class="team">
+                    <img src="${p.escudo_local}" alt="${p.equipo_local}">
+                    <span>${p.equipo_local}</span>
+                  </div>
+                  <div class="vs-circle">VS</div>
+                  <div class="team">
+                    <img src="${p.escudo_visitante}" alt="${p.equipo_visitante}">
+                    <span>${p.equipo_visitante}</span>
+                  </div>
                 </div>
               </div>
-              <div class="match-details">
-                <div class="detail-row">
-                  📅 <b>Data:</b> ${p.fecha} ${p.hora ? 'a les ' + p.hora + ' h' : ''}
-                </div>
-                <div class="detail-row">
-                  📍 <b>Camp:</b> <a href="${mapaUrl}" target="_blank">${p.campo}</a>
-                </div>
+              <div class="details">
+                <div>⏰ <b>Hora:</b> ${p.hora ? p.hora + ' h' : 'Per determinar'}</div>
+                <div>📍 <b>Camp:</b> <a href="${mapaUrl}" target="_blank">${p.campo}</a></div>
               </div>
             </div>
           `;
         }).join('');
 
-        card.innerHTML = `
-          <div class="block-header">
-            <div class="block-title">📅 ${tituloBloque}</div>
-            <span class="block-badge">${partidosBloque.length} ${partidosBloque.length > 1 ? 'Partits' : 'Partit'}</span>
-          </div>
-          ${partidosHtml}
+        wrapper.innerHTML = `
+          <div class="weekend-title">📅 ${bloqueKey}</div>
+          <div class="cards-grid">${cardsHtml}</div>
         `;
 
-        container.appendChild(card);
+        container.appendChild(wrapper);
       });
 
-      if (keys.length > 2) {
+      if (keys.length > 1) {
         document.getElementById('btn-more').classList.remove('hidden');
       }
     }
 
-    function mostrarMesPartits() {
-      const extras = document.querySelectorAll('.extra-card');
-      extras.forEach(el => el.classList.remove('hidden'));
+    function mostrarMes() {
+      document.querySelectorAll('.extra-block').forEach(b => b.classList.remove('hidden'));
       document.getElementById('btn-more').classList.add('hidden');
     }
 
