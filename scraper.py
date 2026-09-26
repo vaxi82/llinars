@@ -23,13 +23,20 @@ JUGADORES = [
     }
 ]
 
+
 CLUB = "LLINARS"
 
-ESCUDO_CLUB = "https://www.fcf.cat/img/escudos/club_08027.png"
+ESCUDO_CLUB = (
+    "https://www.fcf.cat/img/escudos/club_08027.png"
+)
 
-BASE_ESCUDOS = "https://www.fcf.cat/img/escudos/"
+BASE_ESCUDOS = (
+    "https://www.fcf.cat/img/escudos/"
+)
 
-CAMPO_CASA = "Camp Municipal de Llinars del Vallès"
+CAMPO_CASA = (
+    "Camp Municipal de Llinars del Vallès"
+)
 
 ARCHIVO_SALIDA = "partidos.json"
 
@@ -44,9 +51,18 @@ HEADERS = {
         "AppleWebKit/537.36 (KHTML, like Gecko) "
         "Chrome/154.0.0.0 Safari/537.36"
     ),
-    "Accept": "application/json, text/plain, */*",
-    "Accept-Language": "es-ES,es;q=0.9",
-    "Referer": "https://www.fcf.cat/"
+
+    "Accept": (
+        "application/json, text/plain, */*"
+    ),
+
+    "Accept-Language": (
+        "es-ES,es;q=0.9"
+    ),
+
+    "Referer": (
+        "https://www.fcf.cat/"
+    )
 }
 
 
@@ -64,7 +80,10 @@ def escudo_url(valor):
     if not valor:
         return ESCUDO_CLUB
 
-    if valor.startswith("http://") or valor.startswith("https://"):
+    if (
+        valor.startswith("http://")
+        or valor.startswith("https://")
+    ):
         return valor
 
     return BASE_ESCUDOS + valor
@@ -87,14 +106,24 @@ def parse_fecha(valor):
     ]
 
     for formato in formatos:
+
         try:
-            return datetime.strptime(valor, formato)
+            return datetime.strptime(
+                valor,
+                formato
+            )
+
         except ValueError:
             pass
 
     try:
-        return datetime.fromisoformat(valor)
+
+        return datetime.fromisoformat(
+            valor
+        )
+
     except ValueError:
+
         return None
 
 
@@ -105,27 +134,45 @@ def parse_fecha(valor):
 def es_partido_llinars(partido):
 
     codigo_casa = str(
-        partido.get("CODEQUIPO_CASA", "")
+        partido.get(
+            "CODEQUIPO_CASA",
+            ""
+        )
     )
 
     codigo_fuera = str(
-        partido.get("CODEQUIPO_FUERA", "")
+        partido.get(
+            "CODEQUIPO_FUERA",
+            ""
+        )
     )
 
-    # Descansos
+    # --------------------------------------------------------
+    # DESCANSOS
+    # --------------------------------------------------------
+
     if codigo_casa == "-1":
         return False
 
     if codigo_fuera == "-1":
         return False
 
+
     local = str(
-        partido.get("NOMBRE_CASA", "") or ""
+        partido.get(
+            "NOMBRE_CASA",
+            ""
+        ) or ""
     ).upper()
 
+
     visitante = str(
-        partido.get("NOMBRE_FUERA", "") or ""
+        partido.get(
+            "NOMBRE_FUERA",
+            ""
+        ) or ""
     ).upper()
+
 
     return (
         CLUB in local
@@ -150,48 +197,70 @@ def extraer_partidos(
     if not isinstance(data, dict):
         return resultados
 
+
+    # ========================================================
+    # RECORRER JORNADAS
+    # ========================================================
+
     for clave_jornada, lista in data.items():
 
         if not isinstance(lista, list):
             continue
+
 
         for partido in lista:
 
             if not isinstance(partido, dict):
                 continue
 
+
+            # ------------------------------------------------
+            # SOLO LLINARS
+            # ------------------------------------------------
+
             if not es_partido_llinars(partido):
                 continue
 
-            # -----------------------------------------------
-            # Equipos
-            # -----------------------------------------------
+
+            # ------------------------------------------------
+            # EQUIPOS
+            # ------------------------------------------------
 
             local = str(
                 partido.get(
                     "NOMBRE_CASA",
                     ""
                 ) or ""
-            ).replace("\n", " ").strip()
+            ).replace(
+                "\n",
+                " "
+            ).strip()
+
 
             visitante = str(
                 partido.get(
                     "NOMBRE_FUERA",
                     ""
                 ) or ""
-            ).replace("\n", " ").strip()
+            ).replace(
+                "\n",
+                " "
+            ).strip()
 
-            # -----------------------------------------------
-            # Fecha/hora
-            # -----------------------------------------------
+
+            # ------------------------------------------------
+            # FECHA / HORA
+            # ------------------------------------------------
 
             comienzo = partido.get(
                 "COMIENZO1"
             )
 
+
             fecha_dt = parse_fecha(
                 comienzo
             )
+
 
             if fecha_dt:
 
@@ -208,36 +277,49 @@ def extraer_partidos(
                 fecha = ""
                 hora = ""
 
-            # -----------------------------------------------
-            # Local / visitante
-            # -----------------------------------------------
+
+            # ------------------------------------------------
+            # LOCAL / VISITANTE
+            # ------------------------------------------------
 
             es_local = (
                 CLUB in local.upper()
             )
 
-            # -----------------------------------------------
-            # Campo
-            # -----------------------------------------------
+
+            # ------------------------------------------------
+            # CAMPO
+            # ------------------------------------------------
 
             campo = partido.get(
                 "CAMPO"
             )
 
+
             if not campo:
 
                 if es_local:
+
                     campo = CAMPO_CASA
+
                 else:
-                    campo = f"Campo de {local}"
+
+                    campo = (
+                        f"Campo de {local}"
+                    )
+
 
             campo = str(
                 campo
-            ).replace("\n", " ").strip()
+            ).replace(
+                "\n",
+                " "
+            ).strip()
 
-            # -----------------------------------------------
-            # Jornada
-            # -----------------------------------------------
+
+            # ------------------------------------------------
+            # JORNADA
+            # ------------------------------------------------
 
             jornada = str(
                 partido.get(
@@ -246,29 +328,49 @@ def extraer_partidos(
                 )
             )
 
-            # -----------------------------------------------
-            # Crear objeto
-            # -----------------------------------------------
+
+            # ------------------------------------------------
+            # ESCUDOS
+            # ------------------------------------------------
+
+            escudo_local = escudo_url(
+                partido.get(
+                    "ESCUDO_CASA"
+                )
+            )
+
+
+            escudo_visitante = escudo_url(
+                partido.get(
+                    "ESCUDO_FUERA"
+                )
+            )
+
+
+            # ------------------------------------------------
+            # OBJETO FINAL
+            # ------------------------------------------------
 
             resultado = {
+
                 "jugador": jugador,
+
                 "categoria": categoria,
+
                 "jornada": jornada,
 
                 "equipo_local": local,
+
                 "equipo_visitante": visitante,
 
-                "escudo_local": escudo_url(
-                    partido.get("ESCUDO_CASA")
-                ),
+                "escudo_local": escudo_local,
 
-                "escudo_visitante": escudo_url(
-                    partido.get("ESCUDO_FUERA")
-                ),
+                "escudo_visitante": escudo_visitante,
 
                 "es_local": es_local,
 
                 "fecha": fecha,
+
                 "hora": hora,
 
                 "campo": campo,
@@ -276,9 +378,11 @@ def extraer_partidos(
                 "url": url_web
             }
 
+
             resultados.append(
                 resultado
             )
+
 
     return resultados
 
@@ -298,6 +402,7 @@ def clave_orden(partido):
         "hora",
         "00:00"
     )
+
 
     try:
 
@@ -321,10 +426,17 @@ def main():
 
     errores = []
 
+
     print()
+
     print("=" * 70)
-    print("        SCRAPER FCF - LLINARS")
+
+    print(
+        " SCRAPER FCF - LLINARS"
+    )
+
     print("=" * 70)
+
     print()
 
     print(
@@ -336,6 +448,7 @@ def main():
 
     print()
 
+
     # ========================================================
     # ERIK / BIEL
     # ========================================================
@@ -344,11 +457,15 @@ def main():
 
         jugador = config["jugador"]
 
+
         print("-" * 70)
+
         print(
             f"Consultando {jugador}..."
         )
+
         print("-" * 70)
+
 
         try:
 
@@ -358,10 +475,12 @@ def main():
                 timeout=30
             )
 
+
             print(
                 "HTTP:",
                 respuesta.status_code
             )
+
 
             if respuesta.status_code != 200:
 
@@ -375,6 +494,11 @@ def main():
                 )
 
                 continue
+
+
+            # ------------------------------------------------
+            # JSON
+            # ------------------------------------------------
 
             try:
 
@@ -392,6 +516,11 @@ def main():
 
                 continue
 
+
+            # ------------------------------------------------
+            # EXTRAER
+            # ------------------------------------------------
+
             encontrados = extraer_partidos(
                 data,
                 jugador,
@@ -399,19 +528,21 @@ def main():
                 config["url_web"]
             )
 
+
             print(
                 "Partidos encontrados:",
                 len(encontrados)
             )
 
-            # -----------------------------------------------
-            # Mostrar todos los partidos encontrados
-            # -----------------------------------------------
+
+            # ------------------------------------------------
+            # MOSTRAR
+            # ------------------------------------------------
 
             for partido in encontrados:
 
                 print(
-                    f"  ✓ "
+                    f" ✓ "
                     f"{partido['fecha']} "
                     f"{partido['hora']} | "
                     f"{partido['equipo_local']} "
@@ -420,9 +551,11 @@ def main():
                     f"J{partido['jornada']}"
                 )
 
+
             todos.extend(
                 encontrados
             )
+
 
         except Exception as e:
 
@@ -435,6 +568,7 @@ def main():
                 e
             )
 
+
         print()
 
 
@@ -444,15 +578,23 @@ def main():
 
     unicos = {}
 
+
     for partido in todos:
 
         clave = (
+
             partido["jugador"],
+
             partido["fecha"],
+
             partido["hora"],
+
             partido["equipo_local"],
+
             partido["equipo_visitante"]
+
         )
+
 
         unicos[clave] = partido
 
@@ -490,6 +632,7 @@ def main():
                 indent=2
             )
 
+
     except Exception as e:
 
         print(
@@ -504,27 +647,38 @@ def main():
     # RESUMEN
     # ========================================================
 
-    print("=" * 70)
+    print(
+        "=" * 70
+    )
+
     print(
         f"OK: {len(todos)} partidos guardados"
     )
+
     print(
         f"Archivo: {ARCHIVO_SALIDA}"
     )
-    print("=" * 70)
+
+    print(
+        "=" * 70
+    )
 
     print()
 
-    # Contadores
+
     erik = sum(
-        1 for p in todos
+        1
+        for p in todos
         if p["jugador"] == "Erik"
     )
 
+
     biel = sum(
-        1 for p in todos
+        1
+        for p in todos
         if p["jugador"] == "Biel"
     )
+
 
     print(
         f"Erik: {erik} partidos"
@@ -536,17 +690,51 @@ def main():
 
     print()
 
+
+    # ========================================================
+    # LISTADO FINAL
+    # ========================================================
+
+    print(
+        "PARTIDOS GUARDADOS:"
+    )
+
+    print()
+
+
+    for partido in todos:
+
+        print(
+            f"  {partido['fecha']} "
+            f"{partido['hora']} | "
+            f"{partido['jugador']} | "
+            f"{partido['equipo_local']} "
+            f"vs "
+            f"{partido['equipo_visitante']}"
+        )
+
+
+    print()
+
+
+    # ========================================================
+    # AVISOS
+    # ========================================================
+
     if errores:
 
-        print("AVISOS:")
+        print(
+            "AVISOS:"
+        )
 
         for error in errores:
+
             print(
                 " -",
                 error
             )
 
-    print()
+        print()
 
 
 # ============================================================
