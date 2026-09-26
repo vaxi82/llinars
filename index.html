@@ -16,16 +16,20 @@
     padding: 1rem;
   }
   .container { max-width: 900px; margin: 0 auto; }
+
+  /* HEADER */
   header {
     text-align: center;
     padding: 2rem 1rem;
     background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
     border-radius: 16px;
-    margin-bottom: 2rem;
+    margin-bottom: 1.5rem;
     box-shadow: 0 10px 30px rgba(0,0,0,0.3);
   }
   header h1 { font-size: 1.8rem; color: white; margin-bottom: 0.5rem; }
   header p { color: #bfdbfe; font-size: 0.95rem; }
+
+  /* FILTROS */
   .filters {
     display: flex; gap: 0.5rem; margin-bottom: 1.5rem;
     flex-wrap: wrap; justify-content: center;
@@ -44,74 +48,160 @@
   .filter-btn.active {
     background: #3b82f6; border-color: #3b82f6; color: white;
   }
-  .partidos-grid { display: grid; gap: 1rem; }
-  .partido-card {
+
+  /* TARJETA DE DÍA */
+  .dia-card {
     background: rgba(255,255,255,0.05);
     border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 12px;
-    padding: 1.2rem;
+    border-radius: 16px;
+    margin-bottom: 1.5rem;
+    overflow: hidden;
     transition: all 0.3s;
   }
-  .partido-card:hover {
-    transform: translateY(-2px);
-    border-color: rgba(59, 130, 246, 0.5);
-    box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+  .dia-card:hover {
+    border-color: rgba(59, 130, 246, 0.4);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.3);
   }
-  .partido-header {
-    display: flex; justify-content: space-between; align-items: center;
-    margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;
+
+  /* CABECERA DEL DÍA */
+  .dia-header {
+    background: linear-gradient(90deg, #1e3a8a, #3b82f6);
+    padding: 1rem 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
   }
-  .jugador-badge {
-    background: linear-gradient(135deg, #3b82f6, #8b5cf6);
-    color: white; padding: 0.3rem 0.8rem;
-    border-radius: 999px; font-size: 0.8rem; font-weight: 600;
+  .dia-numero {
+    background: white;
+    color: #1e3a8a;
+    width: 56px;
+    height: 56px;
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    flex-shrink: 0;
   }
-  .jornada-badge {
+  .dia-numero .num { font-size: 1.5rem; line-height: 1; }
+  .dia-numero .mes { font-size: 0.7rem; text-transform: uppercase; }
+  .dia-info { flex: 1; min-width: 150px; }
+  .dia-semana { font-size: 1.1rem; font-weight: 600; color: white; }
+  .dia-fecha-completa { font-size: 0.85rem; color: #bfdbfe; }
+  .dia-badge {
     background: rgba(251, 191, 36, 0.2);
-    color: #fbbf24; padding: 0.3rem 0.8rem;
-    border-radius: 999px; font-size: 0.8rem; font-weight: 600;
+    color: #fbbf24;
+    padding: 0.3rem 0.8rem;
+    border-radius: 999px;
+    font-size: 0.8rem;
+    font-weight: 600;
   }
-  .partido-content {
-    display: grid; grid-template-columns: 1fr auto 1fr;
-    gap: 1rem; align-items: center; margin-bottom: 1rem;
+
+  /* PARTIDOS DENTRO DEL DÍA */
+  .partidos-dia { padding: 1rem; }
+  .partido-row {
+    background: rgba(0,0,0,0.2);
+    border-radius: 12px;
+    padding: 1rem;
+    margin-bottom: 0.8rem;
+    border-left: 4px solid #3b82f6;
+  }
+  .partido-row:last-child { margin-bottom: 0; }
+  .partido-row.biel { border-left-color: #8b5cf6; }
+
+  .partido-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.8rem;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  .jugador-tag {
+    padding: 0.25rem 0.7rem;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: white;
+  }
+  .jugador-tag.erik { background: linear-gradient(135deg, #3b82f6, #60a5fa); }
+  .jugador-tag.biel { background: linear-gradient(135deg, #8b5cf6, #a78bfa); }
+  .hora-tag {
+    background: rgba(255,255,255,0.1);
+    padding: 0.25rem 0.7rem;
+    border-radius: 999px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #fbbf24;
+  }
+
+  /* EQUIPOS */
+  .equipos {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    gap: 0.8rem;
+    align-items: center;
+    margin-bottom: 0.8rem;
   }
   .equipo { text-align: center; }
   .equipo.local { text-align: right; }
   .equipo.visitante { text-align: left; }
   .escudo {
-    width: 60px; height: 60px; object-fit: contain;
-    margin-bottom: 0.5rem; background: white;
-    border-radius: 8px; padding: 4px;
+    width: 50px; height: 50px; object-fit: contain;
+    background: white; border-radius: 8px; padding: 3px;
+    margin-bottom: 0.4rem;
   }
   .escudo-fallback {
-    width: 60px; height: 60px; margin: 0 auto 0.5rem;
-    background: white; border-radius: 8px; padding: 4px;
+    width: 50px; height: 50px; margin: 0 auto 0.4rem;
+    background: white; border-radius: 8px; padding: 3px;
     display: flex; align-items: center; justify-content: center;
   }
-  .escudo-fallback svg { width: 50px; height: 50px; }
-  .equipo-nombre { font-size: 0.85rem; color: #cbd5e1; line-height: 1.3; }
-  .vs { font-size: 1.2rem; font-weight: bold; color: #64748b; }
-  .partido-info {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    gap: 0.8rem; padding-top: 1rem;
-    border-top: 1px solid rgba(255,255,255,0.1);
+  .escudo-fallback svg { width: 42px; height: 42px; }
+  .equipo-nombre { font-size: 0.8rem; color: #cbd5e1; line-height: 1.2; }
+  .vs { font-size: 1rem; font-weight: bold; color: #64748b; }
+
+  /* INFO PARTIDO */
+  .partido-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    padding-top: 0.8rem;
+    border-top: 1px solid rgba(255,255,255,0.08);
+    font-size: 0.8rem;
+    color: #94a3b8;
   }
-  .info-item {
-    display: flex; align-items: center; gap: 0.5rem;
-    font-size: 0.85rem; color: #94a3b8;
+  .meta-item { display: flex; align-items: center; gap: 0.4rem; }
+  .local-badge {
+    background: rgba(34, 197, 94, 0.15);
+    color: #86efac;
+    padding: 0.15rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
   }
+  .visitante-badge {
+    background: rgba(239, 68, 68, 0.15);
+    color: #fca5a5;
+    padding: 0.15rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+  }
+
+  /* ESTADOS */
   .loading, .empty { text-align: center; padding: 3rem; color: #94a3b8; }
   .error {
     background: rgba(239, 68, 68, 0.1);
     border: 1px solid rgba(239, 68, 68, 0.3);
     color: #fca5a5; padding: 1rem; border-radius: 8px;
-    margin-bottom: 1rem;
   }
+
   @media (max-width: 600px) {
-    .partido-content { grid-template-columns: 1fr; gap: 0.5rem; }
+    .equipos { grid-template-columns: 1fr; gap: 0.4rem; }
     .equipo.local, .equipo.visitante { text-align: center; }
     .vs { display: none; }
+    .dia-header { padding: 0.8rem; }
+    .partido-row { padding: 0.8rem; }
   }
 </style>
 </head>
@@ -136,10 +226,12 @@
 <script>
 const ESCUDO_LLINARS_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><path d="M50 10 L85 25 L85 75 L50 90 L15 75 L15 25 Z" fill="#1e3a8a" stroke="#fbbf24" stroke-width="2"/><rect x="20" y="30" width="30" height="20" fill="#3b82f6"/><rect x="50" y="30" width="30" height="20" fill="#fbbf24"/><rect x="20" y="50" width="30" height="20" fill="#ef4444"/><rect x="50" y="50" width="30" height="20" fill="#1e3a8a"/><text x="50" y="65" text-anchor="middle" font-size="8" font-weight="bold" fill="white">LLINARS</text><path d="M45 20 L50 15 L55 20 L55 25 L45 25 Z" fill="#fbbf24"/></svg>`;
 
+const MESES = ['gener','febrer','març','abril','maig','juny','juliol','agost','setembre','octubre','novembre','desembre'];
+const DIAS_SEMANA = ['Diumenge','Dilluns','Dimarts','Dimecres','Dijous','Divendres','Dissabte'];
+
 let partidosData = [];
 let filtroActual = 'todos';
 
-// Función para limpiar claves con espacios (por si el JSON los tiene)
 function limpiarClaves(obj) {
   if (Array.isArray(obj)) return obj.map(limpiarClaves);
   if (typeof obj === 'object' && obj !== null) {
@@ -158,7 +250,7 @@ async function cargarPartidos() {
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
     partidosData = limpiarClaves(data);
-    renderizarPartidos();
+    renderizarCalendario();
   } catch (err) {
     document.getElementById('contenido').innerHTML = `
       <div class="error">
@@ -168,7 +260,20 @@ async function cargarPartidos() {
   }
 }
 
-function renderizarPartidos() {
+function agruparPorFecha(partidos) {
+  const grupos = {};
+  partidos.forEach(p => {
+    const fechaLimpia = (p.fecha || '').trim();
+    if (!grupos[fechaLimpia]) grupos[fechaLimpia] = [];
+    grupos[fechaLimpia].push(p);
+  });
+  // Ordenar por fecha
+  return Object.keys(grupos)
+    .sort((a, b) => new Date(a) - new Date(b))
+    .map(fecha => ({ fecha, partidos: grupos[fecha] }));
+}
+
+function renderizarCalendario() {
   const contenido = document.getElementById('contenido');
   let partidosFiltrados = partidosData;
   if (filtroActual !== 'todos') {
@@ -178,39 +283,71 @@ function renderizarPartidos() {
     contenido.innerHTML = '<div class="empty">No hi ha partits per mostrar</div>';
     return;
   }
-  const html = partidosFiltrados.map(p => {
-    const fecha = new Date(p.fecha);
-    const fechaStr = fecha.toLocaleDateString('ca-ES', {
-      weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
-    });
+
+  const dias = agruparPorFecha(partidosFiltrados);
+
+  const html = dias.map(dia => {
+    const fecha = new Date(dia.fecha);
+    const diaSemana = DIAS_SEMANA[fecha.getDay()];
+    const numDia = fecha.getDate();
+    const mes = MESES[fecha.getMonth()];
+    const año = fecha.getFullYear();
+    const fechaCompleta = `${diaSemana}, ${numDia} de ${mes} de ${año}`;
+    const esHoy = new Date().toDateString() === fecha.toDateString();
+
+    const partidosHtml = dia.partidos.map(p => {
+      const claseJugador = p.jugador === 'Biel' ? 'biel' : 'erik';
+      const badgeLocal = p.es_local
+        ? '<span class="local-badge">🏠 Local</span>'
+        : '<span class="visitante-badge">️ Visitant</span>';
+
+      return `
+        <div class="partido-row ${claseJugador}">
+          <div class="partido-top">
+            <span class="jugador-tag ${claseJugador}">${p.jugador} · ${p.categoria}</span>
+            <span class="hora-tag">🕐 ${p.hora}</span>
+          </div>
+          <div class="equipos">
+            <div class="equipo local">
+              <img src="${p.escudo_local}" alt="${p.equipo_local}" class="escudo"
+                   onerror="this.outerHTML='<div class=\\'escudo-fallback\\'>${ESCUDO_LLINARS_SVG}</div>'">
+              <div class="equipo-nombre">${p.equipo_local}</div>
+            </div>
+            <div class="vs">VS</div>
+            <div class="equipo visitante">
+              <img src="${p.escudo_visitante}" alt="${p.equipo_visitante}" class="escudo"
+                   onerror="this.outerHTML='<div class=\\'escudo-fallback\\'>${ESCUDO_LLINARS_SVG}</div>'">
+              <div class="equipo-nombre">${p.equipo_visitante}</div>
+            </div>
+          </div>
+          <div class="partido-meta">
+            <span class="meta-item">📍 ${p.campo}</span>
+            <span class="meta-item">${badgeLocal}</span>
+            <span class="meta-item">Jornada ${p.jornada}</span>
+          </div>
+        </div>`;
+    }).join('');
+
     return `
-      <div class="partido-card">
-        <div class="partido-header">
-          <span class="jugador-badge">${p.jugador} - ${p.categoria}</span>
-          <span class="jornada-badge">Jornada ${p.jornada}</span>
-        </div>
-        <div class="partido-content">
-          <div class="equipo local">
-            <img src="${p.escudo_local}" alt="${p.equipo_local}" class="escudo"
-                 onerror="this.outerHTML='<div class=\\'escudo-fallback\\'>${ESCUDO_LLINARS_SVG}</div>'">
-            <div class="equipo-nombre">${p.equipo_local}</div>
+      <div class="dia-card" ${esHoy ? 'style="border-color:#fbbf24;box-shadow:0 0 20px rgba(251,191,36,0.3)"' : ''}>
+        <div class="dia-header">
+          <div class="dia-numero">
+            <span class="num">${numDia}</span>
+            <span class="mes">${mes.substring(0,3)}</span>
           </div>
-          <div class="vs">VS</div>
-          <div class="equipo visitante">
-            <img src="${p.escudo_visitante}" alt="${p.equipo_visitante}" class="escudo"
-                 onerror="this.outerHTML='<div class=\\'escudo-fallback\\'>${ESCUDO_LLINARS_SVG}</div>'">
-            <div class="equipo-nombre">${p.equipo_visitante}</div>
+          <div class="dia-info">
+            <div class="dia-semana">${diaSemana}${esHoy ? ' · 🔥 AVUI' : ''}</div>
+            <div class="dia-fecha-completa">${numDia} de ${mes} de ${año} · ${dia.partidos.length} partit${dia.partidos.length > 1 ? 's' : ''}</div>
           </div>
+          ${esHoy ? '<span class="dia-badge">AVUI</span>' : ''}
         </div>
-        <div class="partido-info">
-          <div class="info-item">📅 ${fechaStr}</div>
-          <div class="info-item">🕐 ${p.hora}</div>
-          <div class="info-item">📍 ${p.campo}</div>
-          <div class="info-item">${p.es_local ? '🏠 Local' : '✈️ Visitant'}</div>
+        <div class="partidos-dia">
+          ${partidosHtml}
         </div>
       </div>`;
   }).join('');
-  contenido.innerHTML = `<div class="partidos-grid">${html}</div>`;
+
+  contenido.innerHTML = html;
 }
 
 document.querySelectorAll('.filter-btn').forEach(btn => {
@@ -218,7 +355,7 @@ document.querySelectorAll('.filter-btn').forEach(btn => {
     document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
     filtroActual = btn.dataset.filter;
-    renderizarPartidos();
+    renderizarCalendario();
   });
 });
 
