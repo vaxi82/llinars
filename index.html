@@ -1,108 +1,363 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="ca">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Partits C.E. Llinars — Erik & Biel</title>
+
+  <!-- Configuración para App Web en iPhone (Icono al añadir a Pantalla de Inicio) -->
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="C.E. Llinars">
+  <meta name="apple-mobile-web-app-title" content="Llinars FC">
   <link rel="apple-touch-icon" href="https://www.fcf.cat/img/escudos/club_08027.png">
-  <title>Agenda Partidos C.E. Llinars</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="shortcut icon" href="https://www.fcf.cat/img/escudos/club_08027.png">
+
+  <!-- Estilos Modernos y Tarjetas -->
   <style>
-    * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-    body { background-color: #0b1329; color: #f8fafc; margin: 0; padding: 16px; min-height: 100vh; }
-    
-    .header { text-align: center; padding: 10px 0 20px; }
-    .header h1 { font-size: 20px; font-weight: 800; color: #38bdf8; margin: 0; }
-    .header p { font-size: 12px; color: #94a3b8; margin-top: 4px; }
+    :root {
+      --primary: #1e3a8a;
+      --secondary: #2563eb;
+      --accent: #d97706;
+      --bg-color: #f1f5f9;
+      --card-bg: #ffffff;
+      --text-dark: #0f172a;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+      --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.03);
+    }
 
-    .match-card { background: #162238; border-radius: 16px; padding: 16px; margin-bottom: 16px; border: 1px solid #1e2d4a; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
-    
-    .card-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
-    .kid-badge { padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 800; text-transform: uppercase; }
-    .kid-badge.erik { background: #0284c7; color: white; }
-    .kid-badge.biel { background: #10b981; color: white; }
-    .loc-badge { font-size: 10px; font-weight: 800; padding: 3px 8px; border-radius: 6px; text-transform: uppercase; }
-    .loc-badge.local { background: rgba(56,189,248,0.15); color: #38bdf8; border: 1px solid #38bdf8; }
-    .loc-badge.visitante { background: rgba(245,158,11,0.15); color: #f59e0b; border: 1px solid #f59e0b; }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
 
-    .versus-container { display: flex; align-items: center; justify-content: space-between; margin: 12px 0; text-align: center; }
-    .team-box { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; }
-    .team-box img { width: 48px; height: 48px; object-fit: contain; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.4)); }
-    .team-name { font-size: 12px; font-weight: 700; color: #f1f5f9; line-height: 1.2; max-width: 100px; }
-    .vs-tag { font-size: 11px; font-weight: 900; color: #64748b; background: #0b1329; padding: 6px 10px; border-radius: 50%; }
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-dark);
+      padding: 16px;
+      max-width: 600px;
+      margin: 0 auto;
+      padding-bottom: 40px;
+    }
 
-    .match-footer { margin-top: 14px; padding-top: 10px; border-top: 1px dashed #233554; display: flex; justify-content: space-between; align-items: center; font-size: 12px; }
-    .date-time { color: #38bdf8; font-weight: 700; display: flex; align-items: center; gap: 6px; }
-    .map-btn { color: #94a3b8; text-decoration: none; display: flex; align-items: center; gap: 4px; font-weight: 600; }
+    header {
+      text-align: center;
+      margin-bottom: 20px;
+      padding: 12px;
+      background: white;
+      border-radius: 16px;
+      box-shadow: var(--shadow);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+    }
+
+    header img {
+      width: 48px;
+      height: 48px;
+      object-fit: contain;
+    }
+
+    header h1 {
+      font-size: 1.25rem;
+      color: var(--primary);
+      font-weight: 800;
+      line-height: 1.2;
+    }
+
+    /* Tarjeta Principal por Grupo de Días */
+    .block-card {
+      background: var(--card-bg);
+      border-radius: 20px;
+      padding: 16px;
+      margin-bottom: 20px;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border);
+    }
+
+    .block-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 2px solid var(--bg-color);
+      padding-bottom: 10px;
+      margin-bottom: 16px;
+    }
+
+    .block-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .block-badge {
+      background: #dbeafe;
+      color: var(--secondary);
+      font-size: 0.75rem;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-weight: 600;
+    }
+
+    /* Partido individual dentro de la tarjeta */
+    .match-item {
+      background: #f8fafc;
+      border-radius: 14px;
+      padding: 12px;
+      margin-bottom: 12px;
+      border: 1px solid var(--border);
+    }
+
+    .match-item:last-child {
+      margin-bottom: 0;
+    }
+
+    .player-tag {
+      display: inline-block;
+      background: var(--primary);
+      color: white;
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 6px;
+      margin-bottom: 8px;
+    }
+
+    .match-vs {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin: 10px 0;
+    }
+
+    .team {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 6px;
+    }
+
+    .team img {
+      width: 44px;
+      height: 44px;
+      object-fit: contain;
+    }
+
+    .team span {
+      font-size: 0.82rem;
+      font-weight: 600;
+      line-height: 1.2;
+    }
+
+    .vs-badge {
+      font-size: 0.75rem;
+      font-weight: 800;
+      color: var(--text-muted);
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 50%;
+      width: 28px;
+      height: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .match-details {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      margin-top: 8px;
+      padding-top: 8px;
+      border-top: 1px stroke var(--border);
+    }
+
+    .detail-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .detail-row a {
+      color: var(--secondary);
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .detail-row a:hover {
+      text-decoration: underline;
+    }
+
+    /* Botón Ver Más Jornadas */
+    .load-more-btn {
+      display: block;
+      width: 100%;
+      padding: 12px;
+      background: var(--secondary);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      text-align: center;
+      box-shadow: var(--shadow);
+      margin-top: 10px;
+    }
+
+    .load-more-btn:active {
+      transform: scale(0.98);
+    }
+
+    .hidden {
+      display: none;
+    }
   </style>
-<base target="_blank">
 </head>
 <body>
 
-  <div class="header">
-    <h1>⚽ AGENDA C.E. LLINARS</h1>
-    <p>Actualización automática para Erik y Biel</p>
-  </div>
+  <header>
+    <img src="https://www.fcf.cat/img/escudos/club_08027.png" alt="C.E. Llinars Escudo">
+    <h1>C.E. Llinars<br><span style="font-size: 0.85rem; font-weight: normal; color: var(--text-muted);">Horaris Erik i Biel</span></h1>
+  </header>
 
-  <div id="partidos-list">
-    <p style="text-align:center; color:#94a3b8; padding: 30px 0;">Cargando partidos automatizados...</p>
-  </div>
+  <main id="app-container">
+    <div style="text-align:center; padding: 20px; color: var(--text-muted);">Carregant partits...</div>
+  </main>
+
+  <button id="btn-more" class="load-more-btn hidden" onclick="mostrarMesPartits()">Ver Próximos Fines de Semana</button>
 
   <script>
+    let todosLosPartidos = [];
+    let partidosMostrados = 0;
+
     async function cargarPartidos() {
-      const contenedor = document.getElementById('partidos-list');
       try {
-        const res = await fetch('partidos.json?v=' + new Date().getTime());
-        const partidos = await res.json();
-        
-        let html = '';
-        partidos.forEach(p => {
-          const esErik = p.jugador.toLowerCase() === 'erik';
-          const claseKid = esErik ? 'erik' : 'biel';
-          const labelKid = esErik ? '👦 ERIK (Infantil A)' : '👦 BIEL (Benjamí B)';
-          const labelLoc = p.es_local ? 'CASA (Local)' : 'FUERA (Visitante)';
-          const claseLoc = p.es_local ? 'local' : 'visitante';
+        const response = await fetch('partidos.json?v=' + new Date().getTime());
+        todosLosPartidos = await response.json();
 
-          html += `
-            <div class="match-card">
-              <div class="card-top">
-                <span class="kid-badge ${claseKid}">${labelKid}</span>
-                <span class="loc-badge ${claseLoc}">${labelLoc}</span>
+        // Filtrar y ordenar por fecha
+        const hoy = new Date();
+        hoy.setHours(0, 0, 0, 0);
+
+        // Agrupar por bloques de día/fin de semana
+        const agrupados = agruparPorBloque(todosLosPartidos);
+        renderizarPartidos(agrupados);
+
+      } catch (e) {
+        document.getElementById('app-container').innerHTML = `
+          <div style="text-align:center; color:red; padding: 20px;">
+            Error en carregar els partits. Revisa la connexió.
+          </div>`;
+      }
+    }
+
+    function agruparPorBloque(partidos) {
+      const bloques = {};
+
+      partidos.forEach(p => {
+        // Convertir formato DD/MM/YYYY a Date
+        let key = p.fecha;
+        if (p.fecha && p.fecha.includes('/')) {
+          const partes = p.fecha.split('/');
+          const d = new Date(partes[2], partes[1] - 1, partes[0]);
+          const diaSemana = d.getDay(); // 0: Dom, 6: Sáb
+
+          if (diaSemana === 6 || diaSemana === 0) {
+            // Es fin de semana -> Agrupar sábado y domingo en la misma tarjeta
+            const sabado = new Date(d);
+            if (diaSemana === 0) sabado.setDate(sabado.getDate() - 1); // retroceder a sábado
+            key = `Cap de Setmana (${sabado.getDate()}/${sabado.getMonth()+1})`;
+          } else {
+            // Entre semana -> Tarjeta de día único
+            const diasNom = ['Diumenge', 'Dilluns', 'Dimarts', 'Dimecres', 'Dijous', 'Divendres', 'Dissabte'];
+            key = `${diasNom[diaSemana]} ${p.fecha}`;
+          }
+        }
+
+        if (!bloques[key]) bloques[key] = [];
+        bloques[key].push(p);
+      });
+
+      return bloques;
+    }
+
+    function renderizarPartidos(bloques) {
+      const container = document.getElementById('app-container');
+      container.innerHTML = '';
+
+      const keys = Object.keys(bloques);
+      if (keys.length === 0) {
+        container.innerHTML = '<div style="text-align:center;">No hi ha partits programats.</div>';
+        return;
+      }
+
+      keys.forEach((tituloBloque, index) => {
+        const partidosBloque = bloques[tituloBloque];
+
+        const card = document.createElement('div');
+        card.className = `block-card ${index >= 2 ? 'extra-card hidden' : ''}`;
+
+        let partidosHtml = partidosBloque.map(p => {
+          const mapaUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(p.campo)}`;
+          return `
+            <div class="match-item">
+              <span class="player-tag">${p.jugador} (${p.categoria})</span>
+              <div class="match-vs">
+                <div class="team">
+                  <img src="${p.escudo_local}" alt="${p.equipo_local}">
+                  <span>${p.equipo_local}</span>
+                </div>
+                <div class="vs-badge">VS</div>
+                <div class="team">
+                  <img src="${p.escudo_visitante}" alt="${p.equipo_visitante}">
+                  <span>${p.equipo_visitante}</span>
+                </div>
               </div>
-
-              <div class="versus-container">
-                <div class="team-box">
-                  <img src="${p.escudo_local}" onerror="this.src='https://www.fcf.cat/img/escudos/club_08027.png'">
-                  <span class="team-name">${p.equipo_local}</span>
+              <div class="match-details">
+                <div class="detail-row">
+                  📅 <b>Data:</b> ${p.fecha} ${p.hora ? 'a les ' + p.hora + ' h' : ''}
                 </div>
-
-                <span class="vs-tag">VS</span>
-
-                <div class="team-box">
-                  <img src="${p.escudo_visitante}" onerror="this.src='https://www.fcf.cat/img/escudos/club_08027.png'">
-                  <span class="team-name">${p.equipo_visitante}</span>
+                <div class="detail-row">
+                  📍 <b>Camp:</b> <a href="${mapaUrl}" target="_blank">${p.campo}</a>
                 </div>
-              </div>
-
-              <div class="match-footer">
-                <div class="date-time">
-                  <i class="fa-solid fa-calendar-day"></i> ${p.fecha}${p.hora ? ' · ' + p.hora : ''}
-                </div>
-                <a href="https://maps.apple.com/?q=${encodeURIComponent(p.campo)}" target="_blank" class="map-btn">
-                  <i class="fa-solid fa-location-dot"></i> Campo GPS
-                </a>
               </div>
             </div>
           `;
-        });
+        }).join('');
 
-        contenedor.innerHTML = html;
-      } catch (e) {
-        console.error('Error cargando partidos.json:', e);
-        contenedor.innerHTML = '<p style="text-align:center; color:#ef4444;">No se pudieron sincronizar los partidos. Revisa Actions en GitHub.</p>';
+        card.innerHTML = `
+          <div class="block-header">
+            <div class="block-title">📅 ${tituloBloque}</div>
+            <span class="block-badge">${partidosBloque.length} ${partidosBloque.length > 1 ? 'Partits' : 'Partit'}</span>
+          </div>
+          ${partidosHtml}
+        `;
+
+        container.appendChild(card);
+      });
+
+      if (keys.length > 2) {
+        document.getElementById('btn-more').classList.remove('hidden');
       }
+    }
+
+    function mostrarMesPartits() {
+      const extras = document.querySelectorAll('.extra-card');
+      extras.forEach(el => el.classList.remove('hidden'));
+      document.getElementById('btn-more').classList.add('hidden');
     }
 
     cargarPartidos();
