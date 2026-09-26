@@ -1,2176 +1,244 @@
 <!DOCTYPE html>
-<html lang="ca">
+<html lang="es">
 <head>
   <meta charset="UTF-8">
-
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0, maximum-scale=1.0"
-  >
-
-  <meta name="theme-color" content="#1e3a8a">
-
-  <meta
-    name="apple-mobile-web-app-capable"
-    content="yes"
-  >
-
-  <meta
-    name="apple-mobile-web-app-status-bar-style"
-    content="black-translucent"
-  >
-
-  <meta
-    name="apple-mobile-web-app-title"
-    content="Llinars FC"
-  >
-
-  <link
-    rel="apple-touch-icon"
-    href="https://www.fcf.cat/img/escudos/club_08027.png"
-  >
-
-  <link
-    rel="shortcut icon"
-    href="https://www.fcf.cat/img/escudos/club_08027.png"
-  >
-
-  <title>C.E. Llinars — Erik & Biel</title>
-
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="C.E. Llinars">
+  <link rel="apple-touch-icon" href="escudos/club_08027.png">
+  <link rel="icon" href="escudos/club_08027.png">
+  <title>Agenda Partidos C.E. Llinars</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <base target="_blank">
   <style>
-
-    /* =========================================================
-       VARIABLES
-    ========================================================= */
-
-    :root {
-      --primary: #1e3a8a;
-      --primary-dark: #172554;
-      --secondary: #2563eb;
-      --accent: #d97706;
-
-      --background: #eef2f7;
-      --card: #ffffff;
-      --match-bg: #f8fafc;
-
-      --text: #0f172a;
-      --muted: #64748b;
-      --border: #dbe3ee;
-
-      --success: #15803d;
-
-      --shadow:
-        0 8px 20px rgba(15, 23, 42, 0.08);
-
-      --shadow-small:
-        0 3px 10px rgba(15, 23, 42, 0.06);
-
-      --radius: 18px;
-    }
-
-
-    /* =========================================================
-       RESET
-    ========================================================= */
-
-    * {
+    :root{
       box-sizing: border-box;
-      margin: 0;
-      padding: 0;
+      padding-top: env(safe-area-inset-top, 0px);
+      padding-bottom: env(safe-area-inset-bottom, 0px);
     }
+    html{ height:100%; scroll-padding-top: env(safe-area-inset-top, 0px); }
+    * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    body { background-color: #0b1329; color: #f8fafc; margin: 0; height: 100%; }
 
-    html {
-      scroll-behavior: smooth;
+    header.top {
+      position: sticky; top: 0; z-index: 5;
+      padding: calc(env(safe-area-inset-top, 0px) + 12px) 16px 12px;
+      background: #0b1329; border-bottom: 1px solid #1e2d4a;
+      display: flex; align-items: center; justify-content: space-between;
     }
+    header.top .titulo { display: flex; flex-direction: column; }
+    header.top h1 { font-size: 16px; font-weight: 800; color: #38bdf8; margin: 0; }
+    header.top .subtitulo { font-size: 11px; color: #94a3b8; margin-top: 2px; }
+    header.top .dots { display: flex; gap: 5px; }
+    header.top .dots span { width: 5px; height: 5px; border-radius: 50%; background: #1e2d4a; }
+    header.top .dots span.on { background: #38bdf8; }
 
-    body {
-      font-family:
-        -apple-system,
-        BlinkMacSystemFont,
-        "Segoe UI",
-        Roboto,
-        Helvetica,
-        Arial,
-        sans-serif;
-
-      background: var(--background);
-      color: var(--text);
-
-      min-height: 100vh;
-
-      padding: 16px;
-      padding-bottom: 30px;
+    main { height: calc(100% - 62px); overflow-y: scroll; scroll-snap-type: y mandatory; }
+    section.weekend {
+      scroll-snap-align: start;
+      min-height: 100%;
+      display: flex; flex-direction: column; justify-content: center;
+      padding: 16px 16px 26px;
+      max-width: 480px; margin: 0 auto;
     }
-
-
-    /* =========================================================
-       CONTENEDOR PRINCIPAL
-    ========================================================= */
-
-    .app {
-      width: 100%;
-      max-width: 1100px;
-      margin: 0 auto;
-    }
-
-
-    /* =========================================================
-       CABECERA
-    ========================================================= */
-
-    .header {
-      background: var(--card);
-
-      border-radius: var(--radius);
-
-      padding: 16px 20px;
-
-      display: flex;
-      align-items: center;
-      justify-content: center;
-
-      gap: 14px;
-
-      box-shadow: var(--shadow);
-
-      margin-bottom: 16px;
-    }
-
-    .header-logo {
-      width: 55px;
-      height: 55px;
-
-      object-fit: contain;
-
-      flex-shrink: 0;
-    }
-
-    .header-text {
-      text-align: left;
-    }
-
-    .header-title {
-      font-size: 1.35rem;
-      font-weight: 800;
-
-      color: var(--primary);
-
-      line-height: 1.15;
-    }
-
-    .header-subtitle {
-      margin-top: 4px;
-
-      font-size: 0.85rem;
-
-      color: var(--muted);
-    }
-
-
-    /* =========================================================
-       NAVEGACIÓN DE JORNADAS
-    ========================================================= */
-
-    .week-navigation {
-      background: var(--card);
-
-      border-radius: var(--radius);
-
-      padding: 12px;
-
-      box-shadow: var(--shadow);
-
-      display: grid;
-
-      grid-template-columns: 50px 1fr 50px;
-
-      align-items: center;
-
-      gap: 10px;
-
-      margin-bottom: 16px;
-    }
-
-    .navigation-button {
-      width: 46px;
-      height: 46px;
-
-      border: none;
-
-      border-radius: 13px;
-
-      background: #eff6ff;
-
-      color: var(--primary);
-
-      font-size: 1.3rem;
-
-      font-weight: 800;
-
-      cursor: pointer;
-
-      display: flex;
-
-      align-items: center;
-      justify-content: center;
-
-      transition:
-        background 0.2s,
-        transform 0.15s;
-    }
-
-    .navigation-button:hover {
-      background: #dbeafe;
-    }
-
-    .navigation-button:active {
-      transform: scale(0.94);
-    }
-
-    .navigation-button:disabled {
-      opacity: 0.35;
-      cursor: default;
-    }
-
-    .week-title {
-      text-align: center;
-    }
-
-    .week-title-main {
-      display: block;
-
-      color: var(--primary);
-
-      font-size: 1.05rem;
-
-      font-weight: 800;
-    }
-
-    .week-title-sub {
-      display: block;
-
-      margin-top: 3px;
-
-      color: var(--muted);
-
-      font-size: 0.8rem;
-    }
-
-
-    /* =========================================================
-       CONTENEDOR CALENDARIO
-    ========================================================= */
-
-    .calendar {
-      display: grid;
-
-      grid-template-columns:
-        repeat(2, minmax(0, 1fr));
-
-      gap: 14px;
-
-      align-items: start;
-    }
-
-
-    /* =========================================================
-       COLUMNA / DÍA
-    ========================================================= */
-
-    .day-column {
-      background: var(--card);
-
-      border-radius: var(--radius);
-
-      border: 1px solid var(--border);
-
-      overflow: hidden;
-
-      box-shadow: var(--shadow);
-    }
-
-    .day-header {
-      padding: 13px 15px;
-
-      background:
-        linear-gradient(
-          135deg,
-          var(--primary),
-          var(--secondary)
-        );
-
-      color: white;
-
-      display: flex;
-
-      align-items: center;
-
-      justify-content: space-between;
-
-      gap: 10px;
-    }
-
-    .day-name {
-      font-size: 1rem;
-
-      font-weight: 800;
-
-      text-transform: uppercase;
-    }
-
-    .day-date {
-      font-size: 0.8rem;
-
-      opacity: 0.9;
-
-      white-space: nowrap;
-    }
-
-    .day-content {
-      padding: 12px;
-    }
-
-
-    /* =========================================================
-       SIN PARTIDO
-    ========================================================= */
-
-    .empty-day {
-      min-height: 130px;
-
-      display: flex;
-
-      flex-direction: column;
-
-      align-items: center;
-
-      justify-content: center;
-
-      text-align: center;
-
-      color: var(--muted);
-
-      gap: 8px;
-    }
-
-    .empty-icon {
-      font-size: 1.8rem;
-
-      opacity: 0.45;
-    }
-
-    .empty-text {
-      font-size: 0.85rem;
-
-      font-weight: 600;
-    }
-
-
-    /* =========================================================
-       PARTIDO
-    ========================================================= */
-
-    .match {
-      background: var(--match-bg);
-
-      border: 1px solid var(--border);
-
-      border-radius: 15px;
-
-      padding: 12px;
-
-      margin-bottom: 10px;
-
-      box-shadow: var(--shadow-small);
-    }
-
-    .match:last-child {
-      margin-bottom: 0;
-    }
-
-
-    /* =========================================================
-       IDENTIFICADOR JUGADOR
-    ========================================================= */
-
-    .player-row {
-      display: flex;
-
-      align-items: center;
-
-      justify-content: space-between;
-
-      gap: 8px;
-
-      margin-bottom: 10px;
-    }
-
-    .player-badge {
-      display: inline-flex;
-
-      align-items: center;
-
-      background: var(--primary);
-
-      color: white;
-
-      border-radius: 7px;
-
-      padding: 4px 8px;
-
-      font-size: 0.72rem;
-
-      font-weight: 800;
-    }
-
-    .category {
-      color: var(--muted);
-
-      font-size: 0.7rem;
-
-      font-weight: 600;
-
-      text-align: right;
-    }
-
-
-    /* =========================================================
-       HORA
-    ========================================================= */
-
-    .match-time {
-      text-align: center;
-
-      margin-bottom: 10px;
-    }
-
-    .time-value {
-      font-size: 1.35rem;
-
-      font-weight: 900;
-
-      color: var(--primary-dark);
-
-      line-height: 1;
-    }
-
-    .time-label {
-      font-size: 0.68rem;
-
-      color: var(--muted);
-
-      margin-top: 3px;
-    }
-
-
-    /* =========================================================
-       EQUIPOS
-    ========================================================= */
-
-    .teams {
-      display: grid;
-
-      grid-template-columns:
-        minmax(0, 1fr)
-        30px
-        minmax(0, 1fr);
-
-      align-items: center;
-
-      gap: 6px;
-    }
-
-    .team {
-      min-width: 0;
-
-      display: flex;
-
-      flex-direction: column;
-
-      align-items: center;
-
-      text-align: center;
-
-      gap: 6px;
-    }
-
-    .team-logo {
-      width: 48px;
-      height: 48px;
-
-      object-fit: contain;
-    }
-
-    .team-name {
-      font-size: 0.76rem;
-
-      font-weight: 700;
-
-      line-height: 1.2;
-
-      word-break: normal;
-    }
-
-    .team-role {
-      color: var(--muted);
-
-      font-size: 0.62rem;
-
-      font-weight: 600;
-    }
-
-    .versus {
-      width: 28px;
-      height: 28px;
-
-      border-radius: 50%;
-
-      background: white;
-
-      border: 1px solid var(--border);
-
-      display: flex;
-
-      align-items: center;
-      justify-content: center;
-
-      font-size: 0.65rem;
-
-      font-weight: 900;
-
-      color: var(--muted);
-    }
-
-
-    /* =========================================================
-       CAMPO
-    ========================================================= */
-
-    .venue {
-      margin-top: 11px;
-
-      padding-top: 9px;
-
-      border-top: 1px solid var(--border);
-
-      text-align: center;
-    }
-
-    .venue-label {
-      font-size: 0.65rem;
-
-      color: var(--muted);
-
-      margin-bottom: 3px;
-    }
-
-    .venue-name {
-      display: block;
-
-      color: var(--secondary);
-
-      text-decoration: none;
-
-      font-size: 0.74rem;
-
-      font-weight: 700;
-
-      line-height: 1.25;
-    }
-
-    .venue-name:hover {
-      text-decoration: underline;
-    }
-
-
-    /* =========================================================
-       TERCERA CASILLA ENTRE SEMANA
-    ========================================================= */
-
-    .weekday-column {
-      grid-column: 1 / -1;
-    }
-
-    .weekday-column .day-content {
-      display: grid;
-
-      grid-template-columns:
-        repeat(2, minmax(0, 1fr));
-
-      gap: 10px;
-    }
-
-
-    /* =========================================================
-       INDICADOR DE PARTIDOS
-    ========================================================= */
-
-    .match-count {
-      background: rgba(255, 255, 255, 0.18);
-
-      padding: 3px 7px;
-
-      border-radius: 20px;
-
-      font-size: 0.65rem;
-
-      font-weight: 700;
-    }
-
-
-    /* =========================================================
-       PIE
-    ========================================================= */
-
-    .footer {
-      text-align: center;
-
-      color: var(--muted);
-
-      font-size: 0.7rem;
-
-      margin-top: 18px;
-    }
-
-
-    /* =========================================================
-       CARGANDO
-    ========================================================= */
-
-    .loading {
-      background: var(--card);
-
-      border-radius: var(--radius);
-
-      padding: 40px 20px;
-
-      text-align: center;
-
-      color: var(--muted);
-
-      box-shadow: var(--shadow);
-    }
-
-    .loading-icon {
-      font-size: 2rem;
-
-      margin-bottom: 10px;
-    }
-
-
-    /* =========================================================
-       ERROR
-    ========================================================= */
-
-    .error {
-      background: #fff7ed;
-
-      border: 1px solid #fed7aa;
-
-      color: #9a3412;
-
-      border-radius: var(--radius);
-
-      padding: 25px;
-
-      text-align: center;
-    }
-
-
-    /* =========================================================
-       RESPONSIVE - MÓVIL
-    ========================================================= */
-
-    @media (max-width: 650px) {
-
-      body {
-        padding: 10px;
-      }
-
-      .header {
-        padding: 13px;
-
-        border-radius: 15px;
-      }
-
-      .header-logo {
-        width: 45px;
-        height: 45px;
-      }
-
-      .header-title {
-        font-size: 1.15rem;
-      }
-
-      .calendar {
-        grid-template-columns:
-          repeat(2, minmax(0, 1fr));
-
-        gap: 8px;
-      }
-
-      .day-content {
-        padding: 8px;
-      }
-
-      .day-header {
-        padding: 10px;
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 2px;
-      }
-
-      .day-name {
-        font-size: 0.85rem;
-      }
-
-      .day-date {
-        font-size: 0.7rem;
-      }
-
-      .match {
-        padding: 9px;
-      }
-
-      .player-row {
-        flex-direction: column;
-
-        align-items: center;
-
-        gap: 3px;
-      }
-
-      .category {
-        text-align: center;
-      }
-
-      .team-logo {
-        width: 40px;
-        height: 40px;
-      }
-
-      .team-name {
-        font-size: 0.68rem;
-      }
-
-      .time-value {
-        font-size: 1.15rem;
-      }
-
-      .weekday-column .day-content {
-        grid-template-columns: 1fr;
-      }
-
-    }
-
-
-    /* =========================================================
-       MÓVIL MUY ESTRECHO
-    ========================================================= */
-
-    @media (max-width: 400px) {
-
-      .calendar {
-        grid-template-columns: 1fr;
-      }
-
-      .weekday-column {
-        grid-column: auto;
-      }
-
-      .weekday-column .day-content {
-        grid-template-columns: 1fr;
-      }
-
-      .day-header {
-        flex-direction: row;
-        align-items: center;
-      }
-
-    }
-
-
-    /* =========================================================
-       PANTALLAS GRANDES / TV
-    ========================================================= */
-
-    @media (min-width: 1000px) {
-
-      body {
-        padding: 25px;
-      }
-
-      .header-title {
-        font-size: 1.5rem;
-      }
-
-      .calendar {
-        gap: 18px;
-      }
-
-      .day-content {
-        padding: 16px;
-      }
-
-      .team-logo {
-        width: 58px;
-        height: 58px;
-      }
-
-      .team-name {
-        font-size: 0.85rem;
-      }
-
-      .time-value {
-        font-size: 1.5rem;
-      }
-
-    }
-
+    .jornadas-label { font-size: 12px; color: #64748b; margin: 0 0 10px; }
+
+    .day-card { background: #162238; border-radius: 16px; padding: 14px 16px; margin-bottom: 14px; border: 1px solid #1e2d4a; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
+    .day-card h2 { font-size: 12px; letter-spacing: .02em; color: #94a3b8; margin: 0 0 12px; font-weight: 700; }
+    .day-card.midweek h2 { color: #f59e0b; }
+    .sin-partido { color: #64748b; font-size: 13px; padding: 6px 0 2px; }
+
+    .match-card + .match-card { border-top: 1px dashed #233554; margin-top: 12px; padding-top: 12px; }
+
+    .card-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+    .kid-badge { padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 800; text-transform: uppercase; }
+    .kid-badge.erik { background: #0284c7; color: white; }
+    .kid-badge.biel { background: #10b981; color: white; }
+    .loc-badge { font-size: 10px; font-weight: 800; padding: 3px 8px; border-radius: 6px; text-transform: uppercase; }
+    .loc-badge.local { background: rgba(56,189,248,0.15); color: #38bdf8; border: 1px solid #38bdf8; }
+    .loc-badge.visitante { background: rgba(245,158,11,0.15); color: #f59e0b; border: 1px solid #f59e0b; }
+
+    .versus-container { display: flex; align-items: center; justify-content: space-between; margin: 8px 0; text-align: center; }
+    .team-box { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; min-width: 0; }
+    .team-box img { width: 42px; height: 42px; object-fit: contain; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.4)); }
+    .team-name { font-size: 11.5px; font-weight: 700; color: #f1f5f9; line-height: 1.2; }
+    .vs-tag { font-size: 10px; font-weight: 900; color: #64748b; background: #0b1329; padding: 5px 8px; border-radius: 50%; flex-shrink: 0; }
+
+    .match-footer { margin-top: 10px; padding-top: 8px; border-top: 1px dashed #233554; display: flex; justify-content: space-between; align-items: center; font-size: 12px; }
+    .date-time { color: #38bdf8; font-weight: 700; display: flex; align-items: center; gap: 6px; }
+    .map-btn { color: #94a3b8; text-decoration: none; display: flex; align-items: center; gap: 4px; font-weight: 600; }
+
+    nav.pager { display: flex; justify-content: space-between; margin-top: 4px; }
+    nav.pager button { font: inherit; font-weight: 700; font-size: 13px; background: #162238; color: #f8fafc; border: 1px solid #1e2d4a; border-radius: 10px; padding: 10px 14px; }
+    nav.pager button:disabled { opacity: .3; }
+
+    .estado { text-align: center; color: #94a3b8; padding: 60px 20px; }
   </style>
 </head>
-
-
 <body>
 
-<div class="app">
-
-  <!-- =======================================================
-       CABECERA
-  ======================================================== -->
-
-  <header class="header">
-
-    <img
-      class="header-logo"
-      src="https://www.fcf.cat/img/escudos/club_08027.png"
-      alt="Escudo C.E. Llinars"
-    >
-
-    <div class="header-text">
-
-      <div class="header-title">
-        C.E. Llinars
-      </div>
-
-      <div class="header-subtitle">
-        Horaris d'Erik i Biel
-      </div>
-
+  <header class="top">
+    <div class="titulo">
+      <h1 id="rango-actual">⚽ AGENDA C.E. LLINARS</h1>
+      <span class="subtitulo">Erik y Biel</span>
     </div>
-
+    <div class="dots" id="dots"></div>
   </header>
 
-
-  <!-- =======================================================
-       NAVEGACIÓN
-  ======================================================== -->
-
-  <section class="week-navigation">
-
-    <button
-      id="previous-button"
-      class="navigation-button"
-      onclick="cambiarJornada(-1)"
-      aria-label="Jornada anterior"
-    >
-      ‹
-    </button>
-
-    <div class="week-title">
-
-      <span
-        id="week-title-main"
-        class="week-title-main"
-      >
-        Carregant...
-      </span>
-
-      <span
-        id="week-title-sub"
-        class="week-title-sub"
-      >
-        Próxima jornada
-      </span>
-
-    </div>
-
-    <button
-      id="next-button"
-      class="navigation-button"
-      onclick="cambiarJornada(1)"
-      aria-label="Jornada següent"
-    >
-      ›
-    </button>
-
-  </section>
-
-
-  <!-- =======================================================
-       CALENDARIO
-  ======================================================== -->
-
-  <main id="calendar" class="calendar">
-
-    <div class="loading">
-
-      <div class="loading-icon">
-        ⚽
-      </div>
-
-      Carregant partits...
-
-    </div>
-
+  <main id="main">
+    <p class="estado">Cargando partidos automatizados...</p>
   </main>
 
+  <script>
+    const ESCUDO_CLUB = "escudos/club_08027.png";
+    const MESES = ["ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"];
 
-  <div class="footer">
-    C.E. Llinars · Erik & Biel
-  </div>
+    function mondayOf(fecha){
+      const dt = new Date(fecha + "T00:00:00");
+      const dia = (dt.getDay() + 6) % 7; // 0 = lunes
+      dt.setDate(dt.getDate() - dia);
+      return dt;
+    }
+    function fmtDay(dt){ return `${dt.getDate()} ${MESES[dt.getMonth()]}`; }
+    function keyOf(dt){ return dt.toISOString().slice(0,10); }
 
-</div>
+    function buildWeeks(partidos){
+      const semanas = {};
+      partidos.forEach(p => {
+        if (!p.fecha || p.fecha === "Fecha por determinar") return;
+        const lunes = mondayOf(p.fecha);
+        const k = keyOf(lunes);
+        if (!semanas[k]) semanas[k] = { lunes, dias: {0:[],1:[],2:[],3:[],4:[],5:[],6:[]}, jornadas: new Set() };
+        const dt = new Date(p.fecha + "T00:00:00");
+        const dow = (dt.getDay() + 6) % 7;
+        semanas[k].dias[dow].push(p);
+        if (p.jornada) semanas[k].jornadas.add(`${p.jugador} J${p.jornada}`);
+      });
+      return Object.values(semanas).sort((a,b) => a.lunes - b.lunes);
+    }
 
-
-<script>
-
-  /* =========================================================
-     CONFIGURACIÓN
-  ========================================================= */
-
-  let todosLosPartidos = [];
-
-  let jornadas = [];
-
-  let jornadaActual = 0;
-
-
-  /* =========================================================
-     INICIO
-  ========================================================= */
-
-  document.addEventListener(
-    "DOMContentLoaded",
-    cargarPartidos
-  );
-
-
-  /* =========================================================
-     CARGAR JSON
-  ========================================================= */
-
-  async function cargarPartidos() {
-
-    try {
-
-      const response = await fetch(
-        "partidos.json?v=" + Date.now()
-      );
-
-      if (!response.ok) {
-        throw new Error(
-          "No se ha podido cargar partidos.json"
-        );
-      }
-
-      todosLosPartidos = await response.json();
-
-
-      /*
-       * Eliminamos partidos que ya han pasado.
-       */
-
-      const partidosFuturos =
-        todosLosPartidos.filter(
-          partido => !partidoHaPasado(partido)
-        );
-
-
-      /*
-       * Orden cronológico.
-       */
-
-      partidosFuturos.sort(
-        compararPartidos
-      );
-
-
-      /*
-       * Crear jornadas.
-       */
-
-      jornadas =
-        construirJornadas(partidosFuturos);
-
-
-      /*
-       * Buscar automáticamente la jornada
-       * que contiene el siguiente partido.
-       */
-
-      jornadaActual =
-        encontrarProximaJornada();
-
-
-      renderizarJornada();
-
-
-    } catch (error) {
-
-      console.error(error);
-
-      document.getElementById(
-        "calendar"
-      ).innerHTML = `
-
-        <div class="error">
-
-          <div style="font-size:2rem; margin-bottom:10px;">
-            ⚠️
+    function matchCardHTML(p){
+      const claseKid = p.jugador.toLowerCase() === 'erik' ? 'erik' : 'biel';
+      const labelKid = p.jugador.toLowerCase() === 'erik' ? '👦 ERIK (Infantil A)' : '👦 BIEL (Benjamí B)';
+      const claseLoc = p.es_local ? 'local' : 'visitante';
+      const labelLoc = p.es_local ? 'CASA (Local)' : 'FUERA (Visitante)';
+      return `
+        <div class="match-card">
+          <div class="card-top">
+            <span class="kid-badge ${claseKid}">${labelKid}</span>
+            <span class="loc-badge ${claseLoc}">${labelLoc}</span>
           </div>
-
-          <strong>
-            No s'han pogut carregar els partits
-          </strong>
-
-          <div style="margin-top:6px; font-size:0.85rem;">
-            Revisa que el fitxer
-            <b>partidos.json</b>
-            estigui disponible.
+          <div class="versus-container">
+            <div class="team-box">
+              <img src="${p.escudo_local}" loading="lazy" onerror="this.src='${ESCUDO_CLUB}'">
+              <span class="team-name">${p.equipo_local}</span>
+            </div>
+            <span class="vs-tag">VS</span>
+            <div class="team-box">
+              <img src="${p.escudo_visitante}" loading="lazy" onerror="this.src='${ESCUDO_CLUB}'">
+              <span class="team-name">${p.equipo_visitante}</span>
+            </div>
           </div>
-
-        </div>
-
-      `;
-
+          <div class="match-footer">
+            <div class="date-time"><i class="fa-solid fa-calendar-day"></i> ${p.fecha}${p.hora ? ' · ' + p.hora : ''}</div>
+            <a href="https://maps.apple.com/?q=${encodeURIComponent(p.campo)}" target="_blank" class="map-btn">
+              <i class="fa-solid fa-location-dot"></i> Campo GPS
+            </a>
+          </div>
+        </div>`;
     }
 
-  }
-
-
-  /* =========================================================
-     COMPROBAR SI EL PARTIDO YA HA PASADO
-  ========================================================= */
-
-  function partidoHaPasado(partido) {
-
-    if (!partido.fecha) {
-      return false;
-    }
-
-    const fecha =
-      convertirFecha(partido.fecha);
-
-    if (!fecha) {
-      return false;
-    }
-
-
-    /*
-     * Si no tiene hora, consideramos que termina
-     * al final de ese día.
-     */
-
-    if (partido.hora) {
-
-      const hora =
-        convertirHora(partido.hora);
-
-      if (hora) {
-
-        fecha.setHours(
-          hora.horas,
-          hora.minutos,
-          0,
-          0
-        );
-
+    function dayCardHTML(label, partidos, esEntreSemana){
+      const cls = esEntreSemana ? 'day-card midweek' : 'day-card';
+      if (!partidos.length) {
+        if (esEntreSemana) return '';
+        return `<div class="${cls}"><h2>${label}</h2><p class="sin-partido">Sin partido</p></div>`;
       }
-
-    } else {
-
-      fecha.setHours(
-        23,
-        59,
-        59,
-        999
-      );
-
+      return `<div class="${cls}"><h2>${label}</h2>${partidos.map(matchCardHTML).join('')}</div>`;
     }
 
+    function render(semanas){
+      const main = document.getElementById('main');
+      const dots = document.getElementById('dots');
+      const titulo = document.getElementById('rango-actual');
 
-    return fecha < new Date();
-
-  }
-
-
-  /* =========================================================
-     CONVERTIR DD/MM/YYYY
-  ========================================================= */
-
-  function convertirFecha(fechaTexto) {
-
-    if (!fechaTexto) {
-      return null;
-    }
-
-    const partes =
-      fechaTexto.split("/");
-
-    if (partes.length !== 3) {
-      return null;
-    }
-
-    const dia =
-      parseInt(partes[0], 10);
-
-    const mes =
-      parseInt(partes[1], 10) - 1;
-
-    const año =
-      parseInt(partes[2], 10);
-
-
-    const fecha =
-      new Date(
-        año,
-        mes,
-        dia
-      );
-
-
-    return isNaN(fecha.getTime())
-      ? null
-      : fecha;
-
-  }
-
-
-  /* =========================================================
-     CONVERTIR HORA
-  ========================================================= */
-
-  function convertirHora(horaTexto) {
-
-    if (!horaTexto) {
-      return null;
-    }
-
-    const partes =
-      horaTexto
-        .replace("h", "")
-        .trim()
-        .split(":");
-
-    if (partes.length < 2) {
-      return null;
-    }
-
-    return {
-
-      horas:
-        parseInt(partes[0], 10),
-
-      minutos:
-        parseInt(partes[1], 10)
-
-    };
-
-  }
-
-
-  /* =========================================================
-     FECHA + HORA PARA ORDENAR
-  ========================================================= */
-
-  function fechaCompleta(partido) {
-
-    const fecha =
-      convertirFecha(partido.fecha);
-
-    if (!fecha) {
-      return new Date(9999, 0, 1);
-    }
-
-    const hora =
-      convertirHora(partido.hora);
-
-    if (hora) {
-
-      fecha.setHours(
-        hora.horas,
-        hora.minutos,
-        0,
-        0
-      );
-
-    }
-
-    return fecha;
-
-  }
-
-
-  /* =========================================================
-     ORDENAR PARTIDOS
-  ========================================================= */
-
-  function compararPartidos(a, b) {
-
-    return (
-      fechaCompleta(a) -
-      fechaCompleta(b)
-    );
-
-  }
-
-
-  /* =========================================================
-     CONSTRUIR JORNADAS
-  ========================================================= */
-
-  function construirJornadas(partidos) {
-
-    const jornadasMap = new Map();
-
-
-    partidos.forEach(partido => {
-
-      const fecha =
-        convertirFecha(partido.fecha);
-
-      if (!fecha) {
+      if (!semanas.length) {
+        main.innerHTML = '<p class="estado">No hay partidos cargados todavía.</p>';
         return;
       }
 
+      main.innerHTML = semanas.map((s, i) => {
+        const sab = new Date(s.lunes); sab.setDate(sab.getDate() + 5);
+        const dom = new Date(s.lunes); dom.setDate(dom.getDate() + 6);
+        const entreSemanaDias = [0,1,2,3,4].filter(d => s.dias[d].length);
+        const entreSemanaHTML = entreSemanaDias.length
+          ? `<div class="day-card midweek"><h2>⚡ Entre semana</h2>${entreSemanaDias.map(d => s.dias[d].map(matchCardHTML).join('')).join('')}</div>`
+          : '';
+        return `<section class="weekend" id="w${i}" data-rango="${fmtDay(sab)} – ${fmtDay(dom)}">
+            <p class="jornadas-label">${[...s.jornadas].join(' · ')}</p>
+            ${dayCardHTML('SÁBADO ' + fmtDay(sab), s.dias[5], false)}
+            ${dayCardHTML('DOMINGO ' + fmtDay(dom), s.dias[6], false)}
+            ${entreSemanaHTML}
+            <nav class="pager">
+              <button data-dir="-1" ${i === 0 ? 'disabled' : ''}>‹ Anterior</button>
+              <button data-dir="1" ${i === semanas.length - 1 ? 'disabled' : ''}>Siguiente ›</button>
+            </nav>
+          </section>`;
+      }).join('');
 
-      /*
-       * La jornada empieza en sábado.
-       *
-       * Si el partido es:
-       *
-       * Lunes-Viernes
-       * → pertenece al próximo fin de semana.
-       *
-       * Sábado
-       * → pertenece a ese sábado.
-       *
-       * Domingo
-       * → pertenece al sábado anterior.
-       */
+      dots.innerHTML = semanas.map(() => `<span></span>`).join('');
+      const secciones = [...document.querySelectorAll('section.weekend')];
+      const puntos = [...dots.children];
 
-      const dia =
-        fecha.getDay();
+      // Localizar el fin de semana actual (el lunes de esta semana, o el
+      // primero futuro si esta semana ya no tiene jornada).
+      const hoy = new Date(); hoy.setHours(0,0,0,0);
+      const lunesHoy = mondayOf(keyOf(hoy));
+      let idxActual = semanas.findIndex(s => s.lunes >= lunesHoy);
+      if (idxActual === -1) idxActual = semanas.length - 1;
 
-      let inicioJornada =
-        new Date(fecha);
-
-
-      if (dia === 0) {
-
-        /*
-         * Domingo → sábado anterior
-         */
-
-        inicioJornada.setDate(
-          inicioJornada.getDate() - 1
-        );
-
-      } else if (dia >= 1 && dia <= 5) {
-
-        /*
-         * Entre semana → próximo sábado
-         */
-
-        const diasHastaSabado =
-          6 - dia;
-
-        inicioJornada.setDate(
-          inicioJornada.getDate() +
-          diasHastaSabado
-        );
-
+      function marcar(i){
+        titulo.textContent = secciones[i].dataset.rango;
+        puntos.forEach((d, j) => d.classList.toggle('on', j === i));
+      }
+      function irA(i, suave){
+        i = Math.max(0, Math.min(secciones.length - 1, i));
+        secciones[i].scrollIntoView({ behavior: suave ? 'smooth' : 'auto', block: 'start' });
       }
 
+      main.querySelectorAll('nav.pager button').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const actual = secciones.indexOf(btn.closest('section'));
+          irA(actual + parseInt(btn.dataset.dir, 10), true);
+        });
+      });
 
-      inicioJornada.setHours(
-        0, 0, 0, 0
-      );
+      const io = new IntersectionObserver(entries => {
+        entries.forEach(en => {
+          if (en.isIntersecting) marcar(secciones.indexOf(en.target));
+        });
+      }, { root: main, threshold: 0.6 });
+      secciones.forEach(s => io.observe(s));
 
+      // Abrir directamente en el fin de semana actual, nunca en uno pasado.
+      marcar(idxActual);
+      irA(idxActual, false);
+    }
 
-      const clave =
-        formatoClave(inicioJornada);
-
-
-      if (!jornadasMap.has(clave)) {
-
-        jornadasMap.set(
-          clave,
-          {
-            inicio: inicioJornada,
-            partidos: []
-          }
-        );
-
+    async function cargarPartidos(){
+      const main = document.getElementById('main');
+      try {
+        const res = await fetch('partidos.json?v=' + Date.now());
+        const partidos = await res.json();
+        render(buildWeeks(partidos));
+      } catch (e) {
+        console.error('Error cargando partidos.json:', e);
+        main.innerHTML = '<p class="estado" style="color:#ef4444;">No se pudieron sincronizar los partidos. Revisa Actions en GitHub.</p>';
       }
-
-
-      jornadasMap
-        .get(clave)
-        .partidos
-        .push(partido);
-
-    });
-
-
-    /*
-     * Convertir a array.
-     */
-
-    const resultado =
-      Array.from(
-        jornadasMap.values()
-      );
-
-
-    /*
-     * Ordenar jornadas.
-     */
-
-    resultado.sort(
-      (a, b) =>
-        a.inicio - b.inicio
-    );
-
-
-    /*
-     * Ordenar partidos dentro de cada jornada.
-     */
-
-    resultado.forEach(
-      jornada => {
-
-        jornada.partidos.sort(
-          compararPartidos
-        );
-
-      }
-    );
-
-
-    return resultado;
-
-  }
-
-
-  /* =========================================================
-     CLAVE FECHA
-  ========================================================= */
-
-  function formatoClave(fecha) {
-
-    return [
-
-      fecha.getFullYear(),
-
-      String(
-        fecha.getMonth() + 1
-      ).padStart(2, "0"),
-
-      String(
-        fecha.getDate()
-      ).padStart(2, "0")
-
-    ].join("-");
-
-  }
-
-
-  /* =========================================================
-     ENCONTRAR PRÓXIMA JORNADA
-  ========================================================= */
-
-  function encontrarProximaJornada() {
-
-    if (jornadas.length === 0) {
-      return 0;
     }
 
-
-    const ahora =
-      new Date();
-
-
-    for (
-      let i = 0;
-      i < jornadas.length;
-      i++
-    ) {
-
-      const hayPartidoFuturo =
-        jornadas[i].partidos.some(
-          partido =>
-            fechaCompleta(partido) >= ahora
-        );
-
-
-      if (hayPartidoFuturo) {
-        return i;
-      }
-
-    }
-
-
-    return 0;
-
-  }
-
-
-  /* =========================================================
-     RENDERIZAR JORNADA
-  ========================================================= */
-
-  function renderizarJornada() {
-
-    const calendar =
-      document.getElementById(
-        "calendar"
-      );
-
-
-    if (jornadas.length === 0) {
-
-      document.getElementById(
-        "week-title-main"
-      ).textContent =
-        "Sense partits";
-
-      document.getElementById(
-        "week-title-sub"
-      ).textContent =
-        "No hi ha partits programats";
-
-
-      calendar.innerHTML = `
-
-        <div
-          class="day-column"
-          style="grid-column:1/-1;"
-        >
-
-          <div class="day-content">
-
-            <div class="empty-day">
-
-              <div class="empty-icon">
-                ⚽
-              </div>
-
-              <div class="empty-text">
-                No hi ha partits programats.
-              </div>
-
-            </div>
-
-          </div>
-
-        </div>
-
-      `;
-
-      actualizarBotones();
-
-      return;
-
-    }
-
-
-    const jornada =
-      jornadas[jornadaActual];
-
-
-    actualizarTitulo(
-      jornada
-    );
-
-
-    /*
-     * Separar partidos por día.
-     */
-
-    const partidosSabado = [];
-    const partidosDomingo = [];
-    const partidosEntreSemana = [];
-
-
-    jornada.partidos.forEach(
-      partido => {
-
-        const fecha =
-          convertirFecha(
-            partido.fecha
-          );
-
-        const dia =
-          fecha.getDay();
-
-
-        if (dia === 6) {
-
-          partidosSabado.push(
-            partido
-          );
-
-        } else if (dia === 0) {
-
-          partidosDomingo.push(
-            partido
-          );
-
-        } else {
-
-          partidosEntreSemana.push(
-            partido
-          );
-
-        }
-
-      }
-    );
-
-
-    /*
-     * Generar sábado y domingo.
-     */
-
-    let html = "";
-
-    html += crearColumnaDia(
-      "SÁBADO",
-      obtenerFechaDia(
-        jornada.inicio,
-        0
-      ),
-      partidosSabado
-    );
-
-
-    html += crearColumnaDia(
-      "DOMINGO",
-      obtenerFechaDia(
-        jornada.inicio,
-        1
-      ),
-      partidosDomingo
-    );
-
-
-    /*
-     * Si existen partidos entre semana,
-     * crear tercera zona.
-     */
-
-    if (
-      partidosEntreSemana.length > 0
-    ) {
-
-      html += crearColumnaEntreSemana(
-        partidosEntreSemana
-      );
-
-    }
-
-
-    calendar.innerHTML = html;
-
-
-    actualizarBotones();
-
-  }
-
-
-  /* =========================================================
-     OBTENER FECHA DE DÍA
-  ========================================================= */
-
-  function obtenerFechaDia(
-    inicio,
-    dias
-  ) {
-
-    const fecha =
-      new Date(inicio);
-
-    fecha.setDate(
-      fecha.getDate() + dias
-    );
-
-    return fecha;
-
-  }
-
-
-  /* =========================================================
-     CREAR COLUMNA
-  ========================================================= */
-
-  function crearColumnaDia(
-    nombre,
-    fecha,
-    partidos
-  ) {
-
-    const fechaTexto =
-      formatearFechaCorta(
-        fecha
-      );
-
-
-    return `
-
-      <section class="day-column">
-
-        <div class="day-header">
-
-          <div>
-
-            <div class="day-name">
-              ${nombre}
-            </div>
-
-            <div class="day-date">
-              ${fechaTexto}
-            </div>
-
-          </div>
-
-          <span class="match-count">
-            ${
-              partidos.length
-            }
-            ${
-              partidos.length === 1
-                ? "PARTIDO"
-                : "PARTIDOS"
-            }
-          </span>
-
-        </div>
-
-        <div class="day-content">
-
-          ${
-            partidos.length === 0
-
-              ? crearDiaVacio()
-
-              : partidos
-                  .map(
-                    crearPartidoHTML
-                  )
-                  .join("")
-          }
-
-        </div>
-
-      </section>
-
-    `;
-
-  }
-
-
-  /* =========================================================
-     COLUMNA ENTRE SEMANA
-  ========================================================= */
-
-  function crearColumnaEntreSemana(
-    partidos
-  ) {
-
-    return `
-
-      <section class="
-        day-column
-        weekday-column
-      ">
-
-        <div class="day-header">
-
-          <div>
-
-            <div class="day-name">
-              ENTRE SETMANA
-            </div>
-
-            <div class="day-date">
-              Partits fora del cap de setmana
-            </div>
-
-          </div>
-
-          <span class="match-count">
-            ${
-              partidos.length
-            }
-            ${
-              partidos.length === 1
-                ? "PARTIDO"
-                : "PARTIDOS"
-            }
-          </span>
-
-        </div>
-
-        <div class="day-content">
-
-          ${
-            partidos
-              .map(
-                crearPartidoHTML
-              )
-              .join("")
-          }
-
-        </div>
-
-      </section>
-
-    `;
-
-  }
-
-
-  /* =========================================================
-     DÍA VACÍO
-  ========================================================= */
-
-  function crearDiaVacio() {
-
-    return `
-
-      <div class="empty-day">
-
-        <div class="empty-icon">
-          ⚽
-        </div>
-
-        <div class="empty-text">
-          Sense partit
-        </div>
-
-      </div>
-
-    `;
-
-  }
-
-
-  /* =========================================================
-     CREAR PARTIDO
-  ========================================================= */
-
-  function crearPartidoHTML(
-    partido
-  ) {
-
-    const mapaUrl =
-      partido.campo
-
-        ? `https://www.google.com/maps/search/?api=1&query=${
-            encodeURIComponent(
-              partido.campo
-            )
-          }`
-
-        : "#";
-
-
-    const hora =
-      partido.hora
-        ? partido.hora
-        : "--:--";
-
-
-    return `
-
-      <article class="match">
-
-        <!-- JUGADOR -->
-
-        <div class="player-row">
-
-          <span class="player-badge">
-
-            ⚽
-            ${escaparHTML(
-              partido.jugador ||
-              "Jugador"
-            )}
-
-          </span>
-
-          <span class="category">
-
-            ${
-              escaparHTML(
-                partido.categoria ||
-                ""
-              )
-            }
-
-          </span>
-
-        </div>
-
-
-        <!-- HORA -->
-
-        <div class="match-time">
-
-          <div class="time-value">
-            ${escaparHTML(hora)}
-          </div>
-
-          <div class="time-label">
-            HORA DEL PARTIDO
-          </div>
-
-        </div>
-
-
-        <!-- EQUIPOS -->
-
-        <div class="teams">
-
-          <!-- LOCAL -->
-
-          <div class="team">
-
-            <img
-              class="team-logo"
-              src="${
-                escaparAtributo(
-                  partido.escudo_local
-                )
-              }"
-              alt="${
-                escaparAtributo(
-                  partido.equipo_local
-                )
-              }"
-              onerror="this.style.visibility='hidden'"
-            >
-
-            <span class="team-name">
-              ${
-                escaparHTML(
-                  partido.equipo_local ||
-                  "Local"
-                )
-              }
-            </span>
-
-            <span class="team-role">
-              LOCAL
-            </span>
-
-          </div>
-
-
-          <!-- VS -->
-
-          <div class="versus">
-            VS
-          </div>
-
-
-          <!-- VISITANTE -->
-
-          <div class="team">
-
-            <img
-              class="team-logo"
-              src="${
-                escaparAtributo(
-                  partido.escudo_visitante
-                )
-              }"
-              alt="${
-                escaparAtributo(
-                  partido.equipo_visitante
-                )
-              }"
-              onerror="this.style.visibility='hidden'"
-            >
-
-            <span class="team-name">
-              ${
-                escaparHTML(
-                  partido.equipo_visitante ||
-                  "Visitant"
-                )
-              }
-            </span>
-
-            <span class="team-role">
-              VISITANTE
-            </span>
-
-          </div>
-
-        </div>
-
-
-        <!-- CAMPO -->
-
-        ${
-          partido.campo
-
-            ? `
-
-              <div class="venue">
-
-                <div class="venue-label">
-                  📍 CAMP
-                </div>
-
-                <a
-                  class="venue-name"
-                  href="${mapaUrl}"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  ${escaparHTML(
-                    partido.campo
-                  )}
-                </a>
-
-              </div>
-
-            `
-
-            : ""
-
-        }
-
-      </article>
-
-    `;
-
-  }
-
-
-  /* =========================================================
-     ACTUALIZAR TÍTULO
-  ========================================================= */
-
-  function actualizarTitulo(
-    jornada
-  ) {
-
-    const inicio =
-      jornada.inicio;
-
-
-    const domingo =
-      new Date(inicio);
-
-    domingo.setDate(
-      domingo.getDate() + 1
-    );
-
-
-    document.getElementById(
-      "week-title-main"
-    ).textContent =
-      `Cap de setmana · ${
-        formatearRango(
-          inicio,
-          domingo
-        )
-      }`;
-
-
-    document.getElementById(
-      "week-title-sub"
-    ).textContent =
-      "Pròxima jornada";
-
-  }
-
-
-  /* =========================================================
-     RANGO FECHAS
-  ========================================================= */
-
-  function formatearRango(
-    inicio,
-    fin
-  ) {
-
-    const opciones = {
-      day: "numeric",
-      month: "long"
-    };
-
-
-    return `${
-      inicio.toLocaleDateString(
-        "ca-ES",
-        opciones
-      )
-    } – ${
-      fin.toLocaleDateString(
-        "ca-ES",
-        opciones
-      )
-    }`;
-
-  }
-
-
-  /* =========================================================
-     FECHA CORTA
-  ========================================================= */
-
-  function formatearFechaCorta(
-    fecha
-  ) {
-
-    return fecha.toLocaleDateString(
-      "ca-ES",
-      {
-        day: "2-digit",
-        month: "2-digit",
-        year: "numeric"
-      }
-    );
-
-  }
-
-
-  /* =========================================================
-     NAVEGAR JORNADAS
-  ========================================================= */
-
-  function cambiarJornada(
-    direccion
-  ) {
-
-    const nueva =
-      jornadaActual + direccion;
-
-
-    if (
-      nueva < 0 ||
-      nueva >= jornadas.length
-    ) {
-
-      return;
-
-    }
-
-
-    jornadaActual =
-      nueva;
-
-
-    renderizarJornada();
-
-
-    /*
-     * Volver arriba.
-     */
-
-    window.scrollTo({
-      top: 0,
-      behavior: "smooth"
-    });
-
-  }
-
-
-  /* =========================================================
-     BOTONES
-  ========================================================= */
-
-  function actualizarBotones() {
-
-    document.getElementById(
-      "previous-button"
-    ).disabled =
-      jornadaActual <= 0;
-
-
-    document.getElementById(
-      "next-button"
-    ).disabled =
-      jornadaActual >=
-      jornadas.length - 1;
-
-  }
-
-
-  /* =========================================================
-     ESCAPAR HTML
-  ========================================================= */
-
-  function escaparHTML(
-    valor
-  ) {
-
-    if (
-      valor === null ||
-      valor === undefined
-    ) {
-
-      return "";
-
-    }
-
-
-    return String(valor)
-      .replace(
-        /&/g,
-        "&amp;"
-      )
-      .replace(
-        /</g,
-        "&lt;"
-      )
-      .replace(
-        />/g,
-        "&gt;"
-      )
-      .replace(
-        /"/g,
-        "&quot;"
-      )
-      .replace(
-        /'/g,
-        "&#039;"
-      );
-
-  }
-
-
-  /* =========================================================
-     ESCAPAR ATRIBUTOS
-  ========================================================= */
-
-  function escaparAtributo(
-    valor
-  ) {
-
-    return escaparHTML(
-      valor || ""
-    );
-
-  }
-
-</script>
-
+    cargarPartidos();
+  </script>
 </body>
 </html>
