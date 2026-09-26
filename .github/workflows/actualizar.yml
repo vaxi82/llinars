@@ -2,49 +2,159 @@ name: Actualizar Partidos
 
 on:
   schedule:
-    # Se ejecuta de lunes a viernes cada 6 horas y los fines de semana cada 2 horas
+    # Lunes a viernes cada 6 horas
     - cron: '0 6,12,18 * * 1-5'
+
+    # Sábados y domingos cada 2 horas
     - cron: '0 */2 * * 0,6'
-  workflow_dispatch: # Permite ejecución manual desde la pestaña Actions
+
+  # Permite ejecutarlo manualmente desde Actions
+  workflow_dispatch:
 
 concurrency:
   group: actualizar-partidos
   cancel-in-progress: false
 
 jobs:
+
   actualizar:
+
     runs-on: ubuntu-latest
+
     steps:
+
+      # ======================================================
+      # DESCARGAR REPOSITORIO
+      # ======================================================
+
       - name: Checkout del repositorio
+
         uses: actions/checkout@v4
+
         with:
           fetch-depth: 0
 
+
+      # ======================================================
+      # CONFIGURAR PYTHON
+      # ======================================================
+
       - name: Configurar Python
+
         uses: actions/setup-python@v5
+
         with:
           python-version: '3.x'
 
+
+      # ======================================================
+      # INSTALAR DEPENDENCIAS
+      # ======================================================
+
       - name: Instalar dependencias
+
         run: |
+
           python -m pip install --upgrade pip
+
           pip install requests
 
+
+      # ======================================================
+      # EJECUTAR SCRAPER
+      # ======================================================
+
       - name: Ejecutar Scraper
-        run: python scraper.py
+
+        run: |
+
+          python scraper.py
+
+
+      # ======================================================
+      # COMPROBAR RESULTADO
+      # ======================================================
+
+      - name: Mostrar archivos generados
+
+        run: |
+
+          echo "======================================"
+          echo "PARTIDOS.JSON"
+          echo "======================================"
+
+          ls -lh partidos.json
+
+          echo ""
+          echo "======================================"
+          echo "ESCUDOS"
+          echo "======================================"
+
+          if [ -d "escudos" ]; then
+            find escudos -maxdepth 1 -type f -print | sort
+          else
+            echo "No existe carpeta escudos"
+          fi
+
+
+      # ======================================================
+      # GUARDAR CAMBIOS EN GITHUB
+      # ======================================================
 
       - name: Guardar cambios en Git
-        run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          # IMPORTANTE: commitear también los escudos descargados, no solo el JSON
-          git add partidos.json escudos/
 
-          # Hacer commit solo si algo ha cambiado
+        run: |
+
+          git config --global user.name "github-actions[bot]"
+
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+
+          # --------------------------------------------------
+          # Añadir JSON
+          # --------------------------------------------------
+
+          git add partidos.json
+
+
+          # --------------------------------------------------
+          # Añadir escudos si existen
+          # --------------------------------------------------
+
+          if [ -d "escudos" ]; then
+
+            git add escudos/
+
+          fi
+
+
+          # --------------------------------------------------
+          # Comprobar si hay cambios
+          # --------------------------------------------------
+
           if git diff --staged --quiet; then
-            echo "No hay cambios"
+
+            echo "No hay cambios que guardar."
+
           else
-            git commit -m "Actualizar datos de partidos y escudos [skip ci]"
+
+            echo "Hay cambios. Creando commit..."
+
+            git commit \
+              -m "Actualizar partidos y escudos [skip ci]"
+
+
+            # ------------------------------------------------
+            # Actualizar rama antes de hacer push
+            # ------------------------------------------------
+
             git pull --rebase origin main
+
+
+            # ------------------------------------------------
+            # Publicar cambios
+            # ------------------------------------------------
+
             git push
+
           fi
