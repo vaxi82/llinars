@@ -335,7 +335,7 @@ window.fallbackEscudo = function(img) {
 
 async function cargarPartidos() {
   try {
-    const res = await fetch('partidos.json');
+    const res = await fetch('partidos.json?_=' + Date.now(), { cache: 'no-store' });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
     partidosData = limpiar(data);
@@ -452,6 +452,19 @@ document.querySelectorAll('.filter-btn').forEach(btn => {
 });
 
 cargarPartidos();
+
+// Vuelve a cargar los datos cada vez que la app pasa a primer plano
+// (por ejemplo al reabrirla desde el multitarea sin haberla cerrado del todo)
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible') {
+    cargarPartidos();
+  }
+});
+window.addEventListener('pageshow', (e) => {
+  if (e.persisted) {
+    cargarPartidos();
+  }
+});
 </script>
 </body>
 </html>
