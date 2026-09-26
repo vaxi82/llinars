@@ -32,7 +32,7 @@ ESCUDOS_DIR = "escudos"
 
 headers = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-    "Accept": "image/*,*/*;q=0.8",
+    "Accept": "application/json, image/*,*/*;q=0.8",
     "Accept-Language": "es-ES,es;q=0.9,ca;q=0.8",
     "Referer": "https://www.fcf.cat/ca/competicio",
 }
@@ -84,20 +84,20 @@ def descargar_escudo(url_remota):
         print(f"Descargando escudo: {url_remota}")
         res = requests.get(url_remota, headers=headers, timeout=20)
         content_type = res.headers.get("Content-Type", "").lower()
-        
-        if (res.status_code == 200 and res.content and 
+
+        if (res.status_code == 200 and res.content and
             ("image" in content_type or url_remota.lower().endswith((".png", ".jpg", ".jpeg", ".webp", ".svg")))):
             os.makedirs(ESCUDOS_DIR, exist_ok=True)
             with open(ruta_local, "wb") as f:
                 f.write(res.content)
             ruta_relativa = ruta_local.replace("\\", "/")
             _cache_escudos[url_remota] = ruta_relativa
-            print(f"ESCUDO GUARDADO: {ruta_relativa}")
+            print(f"ESCUDO GUARDADO: {ruta_relativa} ({len(res.content)} bytes)")
             return ruta_relativa
     except Exception as e:
         print(f"AVISO: error descargando {url_remota}: {e}")
 
-    # 3. FALLBACK: URL remota (el HTML manejará el error si no carga)
+    # 3. FALLBACK: URL remota
     print(f"FALLBACK URL REMOTA: {url_remota}")
     _cache_escudos[url_remota] = url_remota
     return url_remota
@@ -152,7 +152,7 @@ def extrae_partidos(data, jugador, categoria, url_web):
                 continue
             if not es_partido_llinars(p):
                 continue
-            
+
             loc = p.get("NOMBRE_CASA", "") or ""
             vis = p.get("NOMBRE_FUERA", "") or ""
             es_local = CLUB in loc.upper()
