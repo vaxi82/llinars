@@ -70,6 +70,9 @@ def parse_comienzo(txt):
 
 
 def es_partido_llinars(partido):
+    # Descarta jornadas de descanso (equipo "-1" / "Descans"): no son partidos reales.
+    if partido.get("CODEQUIPO_CASA") == "-1" or partido.get("CODEQUIPO_FUERA") == "-1":
+        return False
     loc = partido.get("NOMBRE_CASA", "") or ""
     vis = partido.get("NOMBRE_FUERA", "") or ""
     return CLUB in (loc + " " + vis).upper()
