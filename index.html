@@ -110,13 +110,22 @@
     padding: 0.7rem 1rem;
     display: flex;
     align-items: center;
+    justify-content: space-between;
     gap: 0.7rem;
     border-bottom: 1px solid rgba(255,255,255,0.06);
   }
+  .dia-header-izq {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    flex: 1;
+    min-width: 0;
+  }
+  .dia-header-der { flex-shrink: 0; }
   .dia-numero {
     background: white;
     color: #1e3a8a;
-    width: 42px; height: 42px;
+    width: 44px; height: 44px;
     border-radius: 10px;
     display: flex; flex-direction: column;
     align-items: center; justify-content: center;
@@ -127,35 +136,39 @@
   .dia-numero .mes { font-size: 0.55rem; text-transform: uppercase; font-weight: 700; }
   .dia-info { flex: 1; min-width: 0; }
   .dia-semana { font-size: 0.9rem; font-weight: 700; color: white; }
-  .dia-sub { font-size: 0.72rem; color: #94a3b8; font-weight: 500; }
+  .dia-sub { font-size: 0.72rem; color: #94a3b8; font-weight: 500; margin-top: 2px; }
 
-  /* BADGE DE TURNO DE TRABAJO */
   .turno-badge {
     display: inline-flex;
     align-items: center;
-    gap: 0.3rem;
-    padding: 0.2rem 0.5rem;
-    border-radius: 6px;
-    font-size: 0.65rem;
+    gap: 0.35rem;
+    padding: 0.4rem 0.75rem;
+    border-radius: 8px;
+    font-size: 0.82rem;
     font-weight: 700;
-    margin-top: 0.3rem;
+    white-space: nowrap;
   }
   .turno-badge.manana {
-    background: rgba(34, 197, 94, 0.15);
+    background: rgba(34, 197, 94, 0.18);
     color: #86efac;
-    border: 1px solid rgba(34, 197, 94, 0.3);
+    border: 1px solid rgba(34, 197, 94, 0.35);
   }
   .turno-badge.tarde {
-    background: rgba(239, 68, 68, 0.15);
+    background: rgba(239, 68, 68, 0.18);
     color: #fca5a5;
-    border: 1px solid rgba(239, 68, 68, 0.3);
+    border: 1px solid rgba(239, 68, 68, 0.35);
   }
   .turno-badge.refuerzo {
-    background: rgba(59, 130, 246, 0.15);
+    background: rgba(59, 130, 246, 0.18);
     color: #93c5fd;
-    border: 1px solid rgba(59, 130, 246, 0.3);
+    border: 1px solid rgba(59, 130, 246, 0.35);
   }
-  .turno-badge .turno-icon { font-size: 0.75rem; }
+  .turno-badge.fiesta {
+    background: rgba(148, 163, 184, 0.12);
+    color: #94a3b8;
+    border: 1px solid rgba(148, 163, 184, 0.25);
+  }
+  .turno-icon { font-size: 0.95rem; }
 
   .partido {
     padding: 0.9rem 1rem;
@@ -283,6 +296,7 @@
     .escudo-wrap { width: 46px; height: 46px; }
     .equipo-nombre { font-size: 0.66rem; }
     .partido { padding: 0.75rem; }
+    .turno-badge { font-size: 0.75rem; padding: 0.35rem 0.6rem; }
   }
 </style>
 </head>
@@ -313,273 +327,32 @@ const MESES_CORTOS = ['gen','feb','mar','abr','mai','jun','jul','ago','set','oct
 const DIAS_SEMANA = ['Diumenge','Dilluns','Dimarts','Dimecres','Dijous','Divendres','Dissabte'];
 
 // ============================================================
-// TURNOS DE TRABAJO (extraídos de tus calendarios 2026 y 2027)
-// Formato: 'YYYY-MM-DD': 'manana' | 'tarde' | 'refuerzo'
+// CÁLCULO DE TURNOS - CICLO DE 42 DÍAS
+// Inicio: 29 diciembre 2025
+// FIESTA(7) → MAÑANA(7) → FIESTA(7) → TARDE(7) → FIESTA(7) → REFUERZO(7)
 // ============================================================
-const TURNOS_TRABAJO = {
-  // 2026 - ENERO
-  '2026-01-06': 'refuerzo', '2026-01-07': 'manana', '2026-01-08': 'tarde',
-  '2026-01-09': 'manana', '2026-01-10': 'manana', '2026-01-11': 'manana',
-  '2026-01-19': 'tarde', '2026-01-20': 'tarde', '2026-01-21': 'tarde',
-  '2026-01-22': 'tarde', '2026-01-23': 'tarde', '2026-01-24': 'tarde',
-  '2026-01-25': 'tarde', '2026-01-27': 'manana',
-  // 2026 - FEBRERO
-  '2026-02-02': 'refuerzo', '2026-02-03': 'refuerzo', '2026-02-04': 'refuerzo',
-  '2026-02-05': 'refuerzo', '2026-02-06': 'refuerzo', '2026-02-07': 'refuerzo',
-  '2026-02-08': 'refuerzo', '2026-02-16': 'manana', '2026-02-17': 'manana',
-  '2026-02-18': 'manana', '2026-02-19': 'manana', '2026-02-20': 'manana',
-  '2026-02-21': 'manana', '2026-02-22': 'manana', '2026-02-27': 'refuerzo',
-  // 2026 - MARZO
-  '2026-03-02': 'tarde', '2026-03-03': 'tarde', '2026-03-04': 'tarde',
-  '2026-03-05': 'tarde', '2026-03-06': 'tarde', '2026-03-07': 'tarde',
-  '2026-03-08': 'tarde', '2026-03-09': 'refuerzo', '2026-03-10': 'refuerzo',
-  '2026-03-11': 'tarde', '2026-03-12': 'tarde', '2026-03-13': 'refuerzo',
-  '2026-03-14': 'refuerzo', '2026-03-15': 'refuerzo', '2026-03-16': 'tarde',
-  '2026-03-17': 'tarde', '2026-03-18': 'tarde', '2026-03-19': 'tarde',
-  '2026-03-20': 'tarde', '2026-03-21': 'tarde', '2026-03-22': 'refuerzo',
-  '2026-03-23': 'refuerzo', '2026-03-24': 'refuerzo', '2026-03-25': 'refuerzo',
-  '2026-03-26': 'refuerzo', '2026-03-27': 'refuerzo', '2026-03-28': 'refuerzo',
-  '2026-03-30': 'refuerzo', '2026-03-31': 'refuerzo',
-  // 2026 - ABRIL
-  '2026-04-03': 'refuerzo', '2026-04-04': 'manana', '2026-04-05': 'refuerzo',
-  '2026-04-06': 'refuerzo', '2026-04-07': 'refuerzo', '2026-04-08': 'refuerzo',
-  '2026-04-09': 'refuerzo', '2026-04-10': 'refuerzo', '2026-04-11': 'refuerzo',
-  '2026-04-13': 'tarde', '2026-04-14': 'tarde', '2026-04-15': 'tarde',
-  '2026-04-16': 'tarde', '2026-04-17': 'tarde', '2026-04-18': 'tarde',
-  '2026-04-19': 'tarde', '2026-04-27': 'refuerzo', '2026-04-28': 'refuerzo',
-  '2026-04-29': 'refuerzo', '2026-04-30': 'refuerzo',
-  // 2026 - MAYO
-  '2026-05-01': 'refuerzo', '2026-05-02': 'refuerzo', '2026-05-03': 'refuerzo',
-  '2026-05-04': 'manana', '2026-05-05': 'manana', '2026-05-06': 'manana',
-  '2026-05-07': 'manana', '2026-05-08': 'manana', '2026-05-09': 'manana',
-  '2026-05-10': 'manana', '2026-05-18': 'tarde', '2026-05-19': 'tarde',
-  '2026-05-20': 'tarde', '2026-05-21': 'tarde', '2026-05-22': 'tarde',
-  '2026-05-23': 'tarde', '2026-05-24': 'tarde', '2026-05-28': 'refuerzo',
-  '2026-05-29': 'refuerzo', '2026-05-30': 'refuerzo',
-  // 2026 - JUNIO
-  '2026-06-01': 'refuerzo', '2026-06-02': 'refuerzo', '2026-06-03': 'refuerzo',
-  '2026-06-04': 'refuerzo', '2026-06-05': 'refuerzo', '2026-06-06': 'refuerzo',
-  '2026-06-07': 'refuerzo', '2026-06-08': 'manana', '2026-06-09': 'manana',
-  '2026-06-10': 'manana', '2026-06-11': 'manana', '2026-06-12': 'manana',
-  '2026-06-13': 'manana', '2026-06-14': 'manana', '2026-06-15': 'refuerzo',
-  '2026-06-16': 'refuerzo', '2026-06-17': 'refuerzo', '2026-06-18': 'refuerzo',
-  '2026-06-19': 'refuerzo', '2026-06-20': 'refuerzo', '2026-06-21': 'refuerzo',
-  '2026-06-22': 'manana', '2026-06-23': 'manana', '2026-06-24': 'manana',
-  '2026-06-25': 'manana', '2026-06-26': 'manana', '2026-06-27': 'manana',
-  '2026-06-28': 'manana', '2026-06-29': 'refuerzo', '2026-06-30': 'refuerzo',
-  // 2026 - JULIO
-  '2026-07-01': 'refuerzo', '2026-07-02': 'refuerzo', '2026-07-03': 'refuerzo',
-  '2026-07-06': 'tarde', '2026-07-07': 'tarde', '2026-07-08': 'tarde',
-  '2026-07-09': 'tarde', '2026-07-10': 'tarde', '2026-07-11': 'tarde',
-  '2026-07-12': 'tarde', '2026-07-13': 'refuerzo', '2026-07-14': 'refuerzo',
-  '2026-07-15': 'refuerzo', '2026-07-16': 'refuerzo', '2026-07-17': 'refuerzo',
-  '2026-07-18': 'refuerzo', '2026-07-19': 'refuerzo', '2026-07-20': 'tarde',
-  '2026-07-21': 'tarde', '2026-07-22': 'tarde', '2026-07-23': 'tarde',
-  '2026-07-24': 'tarde', '2026-07-25': 'tarde', '2026-07-26': 'tarde',
-  '2026-07-27': 'refuerzo', '2026-07-28': 'refuerzo', '2026-07-29': 'refuerzo',
-  '2026-07-30': 'refuerzo', '2026-07-31': 'refuerzo',
-  // 2026 - AGOSTO
-  '2026-08-01': 'refuerzo', '2026-08-02': 'refuerzo', '2026-08-03': 'manana',
-  '2026-08-04': 'manana', '2026-08-05': 'manana', '2026-08-06': 'manana',
-  '2026-08-07': 'manana', '2026-08-08': 'manana', '2026-08-09': 'manana',
-  '2026-08-10': 'tarde', '2026-08-11': 'tarde', '2026-08-12': 'tarde',
-  '2026-08-13': 'tarde', '2026-08-14': 'tarde', '2026-08-15': 'tarde',
-  '2026-08-16': 'tarde', '2026-08-17': 'manana', '2026-08-18': 'manana',
-  '2026-08-19': 'manana', '2026-08-20': 'manana', '2026-08-21': 'manana',
-  '2026-08-22': 'manana', '2026-08-23': 'manana', '2026-08-24': 'tarde',
-  '2026-08-25': 'tarde', '2026-08-26': 'tarde', '2026-08-27': 'tarde',
-  '2026-08-28': 'tarde', '2026-08-29': 'tarde', '2026-08-30': 'tarde',
-  '2026-08-31': 'refuerzo',
-  // 2026 - SEPTIEMBRE
-  '2026-09-01': 'manana', '2026-09-02': 'manana', '2026-09-03': 'manana',
-  '2026-09-04': 'manana', '2026-09-05': 'manana', '2026-09-06': 'manana',
-  '2026-09-07': 'manana', '2026-09-08': 'manana', '2026-09-09': 'manana',
-  '2026-09-10': 'manana', '2026-09-11': 'refuerzo', '2026-09-12': 'refuerzo',
-  '2026-09-13': 'refuerzo', '2026-09-14': 'refuerzo', '2026-09-15': 'refuerzo',
-  '2026-09-16': 'refuerzo', '2026-09-17': 'refuerzo', '2026-09-18': 'manana',
-  '2026-09-19': 'manana', '2026-09-20': 'manana', '2026-09-21': 'manana',
-  '2026-09-22': 'manana', '2026-09-23': 'manana', '2026-09-24': 'manana',
-  '2026-09-25': 'manana', '2026-09-26': 'manana', '2026-09-27': 'tarde',
-  '2026-09-28': 'tarde', '2026-09-29': 'tarde', '2026-09-30': 'tarde',
-  // 2026 - OCTUBRE
-  '2026-10-01': 'manana', '2026-10-02': 'manana', '2026-10-03': 'manana',
-  '2026-10-04': 'tarde', '2026-10-05': 'tarde', '2026-10-06': 'tarde',
-  '2026-10-07': 'tarde', '2026-10-08': 'tarde', '2026-10-09': 'tarde',
-  '2026-10-10': 'tarde', '2026-10-12': 'refuerzo', '2026-10-13': 'refuerzo',
-  '2026-10-14': 'refuerzo', '2026-10-15': 'refuerzo', '2026-10-16': 'refuerzo',
-  '2026-10-17': 'refuerzo', '2026-10-18': 'refuerzo', '2026-10-19': 'tarde',
-  '2026-10-20': 'tarde', '2026-10-21': 'tarde', '2026-10-22': 'tarde',
-  '2026-10-23': 'tarde', '2026-10-24': 'tarde', '2026-10-25': 'tarde',
-  '2026-10-26': 'manana', '2026-10-27': 'manana', '2026-10-28': 'manana',
-  '2026-10-29': 'manana', '2026-10-30': 'manana', '2026-10-31': 'manana',
-  // 2026 - NOVIEMBRE
-  '2026-11-01': 'manana', '2026-11-02': 'refuerzo', '2026-11-03': 'refuerzo',
-  '2026-11-04': 'refuerzo', '2026-11-05': 'refuerzo', '2026-11-06': 'refuerzo',
-  '2026-11-07': 'refuerzo', '2026-11-08': 'refuerzo', '2026-11-09': 'manana',
-  '2026-11-10': 'manana', '2026-11-11': 'manana', '2026-11-12': 'manana',
-  '2026-11-13': 'manana', '2026-11-14': 'manana', '2026-11-15': 'manana',
-  '2026-11-16': 'tarde', '2026-11-17': 'tarde', '2026-11-18': 'tarde',
-  '2026-11-19': 'tarde', '2026-11-20': 'tarde', '2026-11-21': 'tarde',
-  '2026-11-22': 'tarde', '2026-11-23': 'refuerzo', '2026-11-24': 'refuerzo',
-  '2026-11-25': 'refuerzo', '2026-11-26': 'refuerzo', '2026-11-27': 'refuerzo',
-  '2026-11-28': 'refuerzo', '2026-11-29': 'refuerzo', '2026-11-30': 'refuerzo',
-  // 2026 - DICIEMBRE
-  '2026-12-01': 'refuerzo', '2026-12-02': 'refuerzo', '2026-12-03': 'refuerzo',
-  '2026-12-04': 'refuerzo', '2026-12-05': 'refuerzo', '2026-12-06': 'refuerzo',
-  '2026-12-07': 'refuerzo', '2026-12-08': 'refuerzo', '2026-12-09': 'refuerzo',
-  '2026-12-10': 'refuerzo', '2026-12-11': 'refuerzo', '2026-12-12': 'refuerzo',
-  '2026-12-13': 'manana', '2026-12-14': 'manana', '2026-12-15': 'manana',
-  '2026-12-16': 'manana', '2026-12-17': 'manana', '2026-12-18': 'manana',
-  '2026-12-19': 'manana', '2026-12-20': 'tarde', '2026-12-21': 'tarde',
-  '2026-12-22': 'tarde', '2026-12-23': 'tarde', '2026-12-24': 'tarde',
-  '2026-12-25': 'tarde', '2026-12-26': 'tarde', '2026-12-27': 'refuerzo',
-  '2026-12-28': 'refuerzo', '2026-12-29': 'refuerzo', '2026-12-30': 'refuerzo',
-  '2026-12-31': 'refuerzo',
-  // 2027 - ENERO
-  '2027-01-01': 'refuerzo', '2027-01-04': 'refuerzo', '2027-01-05': 'refuerzo',
-  '2027-01-06': 'refuerzo', '2027-01-07': 'refuerzo', '2027-01-08': 'refuerzo',
-  '2027-01-09': 'refuerzo', '2027-01-10': 'refuerzo', '2027-01-11': 'manana',
-  '2027-01-12': 'manana', '2027-01-13': 'manana', '2027-01-14': 'manana',
-  '2027-01-15': 'manana', '2027-01-16': 'manana', '2027-01-17': 'manana',
-  '2027-01-18': 'manana', '2027-01-19': 'manana', '2027-01-20': 'manana',
-  '2027-01-21': 'manana', '2027-01-22': 'manana', '2027-01-23': 'manana',
-  '2027-01-24': 'manana', '2027-01-25': 'manana', '2027-01-26': 'refuerzo',
-  '2027-01-27': 'refuerzo', '2027-01-28': 'refuerzo', '2027-01-29': 'refuerzo',
-  '2027-01-30': 'refuerzo', '2027-01-31': 'refuerzo',
-  // 2027 - FEBRERO
-  '2027-02-01': 'tarde', '2027-02-02': 'tarde', '2027-02-03': 'tarde',
-  '2027-02-04': 'tarde', '2027-02-05': 'tarde', '2027-02-06': 'tarde',
-  '2027-02-07': 'tarde', '2027-02-08': 'refuerzo', '2027-02-09': 'refuerzo',
-  '2027-02-10': 'refuerzo', '2027-02-11': 'refuerzo', '2027-02-12': 'refuerzo',
-  '2027-02-13': 'refuerzo', '2027-02-14': 'refuerzo', '2027-02-15': 'refuerzo',
-  '2027-02-16': 'refuerzo', '2027-02-17': 'refuerzo', '2027-02-18': 'refuerzo',
-  '2027-02-19': 'refuerzo', '2027-02-20': 'refuerzo', '2027-02-21': 'refuerzo',
-  '2027-02-22': 'manana', '2027-02-23': 'manana', '2027-02-24': 'manana',
-  '2027-02-25': 'manana', '2027-02-26': 'manana', '2027-02-27': 'manana',
-  '2027-02-28': 'manana',
-  // 2027 - MARZO
-  '2027-03-01': 'tarde', '2027-03-02': 'tarde', '2027-03-03': 'tarde',
-  '2027-03-04': 'tarde', '2027-03-05': 'tarde', '2027-03-06': 'tarde',
-  '2027-03-07': 'tarde', '2027-03-08': 'manana', '2027-03-09': 'manana',
-  '2027-03-10': 'manana', '2027-03-11': 'manana', '2027-03-12': 'manana',
-  '2027-03-13': 'manana', '2027-03-14': 'manana', '2027-03-15': 'tarde',
-  '2027-03-16': 'tarde', '2027-03-17': 'tarde', '2027-03-18': 'tarde',
-  '2027-03-19': 'tarde', '2027-03-20': 'tarde', '2027-03-21': 'tarde',
-  '2027-03-22': 'refuerzo', '2027-03-23': 'refuerzo', '2027-03-24': 'refuerzo',
-  '2027-03-25': 'refuerzo', '2027-03-26': 'refuerzo', '2027-03-27': 'refuerzo',
-  '2027-03-28': 'refuerzo', '2027-03-29': 'refuerzo', '2027-03-30': 'refuerzo',
-  '2027-03-31': 'refuerzo',
-  // 2027 - ABRIL
-  '2027-04-01': 'refuerzo', '2027-04-02': 'refuerzo', '2027-04-03': 'refuerzo',
-  '2027-04-04': 'refuerzo', '2027-04-05': 'manana', '2027-04-06': 'manana',
-  '2027-04-07': 'manana', '2027-04-08': 'manana', '2027-04-09': 'manana',
-  '2027-04-10': 'manana', '2027-04-11': 'manana', '2027-04-12': 'manana',
-  '2027-04-13': 'manana', '2027-04-14': 'manana', '2027-04-15': 'manana',
-  '2027-04-16': 'manana', '2027-04-17': 'manana', '2027-04-18': 'manana',
-  '2027-04-19': 'tarde', '2027-04-20': 'tarde', '2027-04-21': 'tarde',
-  '2027-04-22': 'tarde', '2027-04-23': 'tarde', '2027-04-24': 'tarde',
-  '2027-04-25': 'tarde', '2027-04-26': 'refuerzo', '2027-04-27': 'refuerzo',
-  '2027-04-28': 'refuerzo', '2027-04-29': 'refuerzo', '2027-04-30': 'refuerzo',
-  // 2027 - MAYO
-  '2027-05-01': 'tarde', '2027-05-02': 'tarde', '2027-05-03': 'tarde',
-  '2027-05-04': 'tarde', '2027-05-05': 'tarde', '2027-05-06': 'tarde',
-  '2027-05-07': 'tarde', '2027-05-08': 'refuerzo', '2027-05-09': 'refuerzo',
-  '2027-05-10': 'refuerzo', '2027-05-11': 'refuerzo', '2027-05-12': 'refuerzo',
-  '2027-05-13': 'refuerzo', '2027-05-14': 'refuerzo', '2027-05-15': 'refuerzo',
-  '2027-05-16': 'refuerzo', '2027-05-17': 'refuerzo', '2027-05-18': 'refuerzo',
-  '2027-05-19': 'refuerzo', '2027-05-20': 'refuerzo', '2027-05-21': 'refuerzo',
-  '2027-05-22': 'manana', '2027-05-23': 'manana', '2027-05-24': 'manana',
-  '2027-05-25': 'manana', '2027-05-26': 'manana', '2027-05-27': 'manana',
-  '2027-05-28': 'manana', '2027-05-29': 'manana', '2027-05-30': 'manana',
-  '2027-05-31': 'manana',
-  // 2027 - JUNIO
-  '2027-06-01': 'refuerzo', '2027-06-02': 'refuerzo', '2027-06-03': 'refuerzo',
-  '2027-06-04': 'refuerzo', '2027-06-05': 'refuerzo', '2027-06-06': 'refuerzo',
-  '2027-06-07': 'refuerzo', '2027-06-08': 'tarde', '2027-06-09': 'tarde',
-  '2027-06-10': 'tarde', '2027-06-11': 'tarde', '2027-06-12': 'tarde',
-  '2027-06-13': 'tarde', '2027-06-14': 'tarde', '2027-06-15': 'tarde',
-  '2027-06-16': 'tarde', '2027-06-17': 'tarde', '2027-06-18': 'tarde',
-  '2027-06-19': 'tarde', '2027-06-20': 'tarde', '2027-06-21': 'manana',
-  '2027-06-22': 'manana', '2027-06-23': 'manana', '2027-06-24': 'manana',
-  '2027-06-25': 'manana', '2027-06-26': 'manana', '2027-06-27': 'manana',
-  '2027-06-28': 'manana', '2027-06-29': 'manana', '2027-06-30': 'manana',
-  // 2027 - JULIO
-  '2027-07-01': 'manana', '2027-07-02': 'manana', '2027-07-03': 'manana',
-  '2027-07-04': 'manana', '2027-07-05': 'manana', '2027-07-06': 'manana',
-  '2027-07-07': 'manana', '2027-07-08': 'manana', '2027-07-09': 'manana',
-  '2027-07-10': 'manana', '2027-07-11': 'manana', '2027-07-12': 'manana',
-  '2027-07-13': 'refuerzo', '2027-07-14': 'refuerzo', '2027-07-15': 'refuerzo',
-  '2027-07-16': 'refuerzo', '2027-07-17': 'refuerzo', '2027-07-18': 'refuerzo',
-  '2027-07-19': 'refuerzo', '2027-07-20': 'tarde', '2027-07-21': 'tarde',
-  '2027-07-22': 'tarde', '2027-07-23': 'tarde', '2027-07-24': 'tarde',
-  '2027-07-25': 'tarde', '2027-07-26': 'tarde', '2027-07-27': 'tarde',
-  '2027-07-28': 'tarde', '2027-07-29': 'tarde', '2027-07-30': 'tarde',
-  '2027-07-31': 'tarde',
-  // 2027 - AGOSTO (todo el mes refuerzo según calendario)
-  '2027-08-01': 'refuerzo', '2027-08-02': 'refuerzo', '2027-08-03': 'refuerzo',
-  '2027-08-04': 'refuerzo', '2027-08-05': 'refuerzo', '2027-08-06': 'refuerzo',
-  '2027-08-07': 'refuerzo', '2027-08-08': 'refuerzo', '2027-08-09': 'refuerzo',
-  '2027-08-10': 'refuerzo', '2027-08-11': 'refuerzo', '2027-08-12': 'refuerzo',
-  '2027-08-13': 'refuerzo', '2027-08-14': 'refuerzo', '2027-08-15': 'refuerzo',
-  '2027-08-16': 'refuerzo', '2027-08-17': 'refuerzo', '2027-08-18': 'refuerzo',
-  '2027-08-19': 'refuerzo', '2027-08-20': 'refuerzo', '2027-08-21': 'refuerzo',
-  '2027-08-22': 'refuerzo', '2027-08-23': 'refuerzo', '2027-08-24': 'refuerzo',
-  '2027-08-25': 'refuerzo', '2027-08-26': 'refuerzo', '2027-08-27': 'refuerzo',
-  '2027-08-28': 'refuerzo', '2027-08-29': 'refuerzo', '2027-08-30': 'refuerzo',
-  '2027-08-31': 'refuerzo',
-  // 2027 - SEPTIEMBRE (todo el mes tarde según calendario)
-  '2027-09-01': 'tarde', '2027-09-02': 'tarde', '2027-09-03': 'tarde',
-  '2027-09-04': 'tarde', '2027-09-05': 'tarde', '2027-09-06': 'tarde',
-  '2027-09-07': 'tarde', '2027-09-08': 'tarde', '2027-09-09': 'tarde',
-  '2027-09-10': 'tarde', '2027-09-11': 'tarde', '2027-09-12': 'tarde',
-  '2027-09-13': 'tarde', '2027-09-14': 'tarde', '2027-09-15': 'tarde',
-  '2027-09-16': 'tarde', '2027-09-17': 'tarde', '2027-09-18': 'tarde',
-  '2027-09-19': 'tarde', '2027-09-20': 'tarde', '2027-09-21': 'tarde',
-  '2027-09-22': 'tarde', '2027-09-23': 'tarde', '2027-09-24': 'tarde',
-  '2027-09-25': 'tarde', '2027-09-26': 'tarde', '2027-09-27': 'tarde',
-  '2027-09-28': 'tarde', '2027-09-29': 'tarde', '2027-09-30': 'tarde',
-  // 2027 - OCTUBRE (todo el mes tarde según calendario)
-  '2027-10-01': 'tarde', '2027-10-02': 'tarde', '2027-10-03': 'tarde',
-  '2027-10-04': 'tarde', '2027-10-05': 'tarde', '2027-10-06': 'tarde',
-  '2027-10-07': 'tarde', '2027-10-08': 'tarde', '2027-10-09': 'tarde',
-  '2027-10-10': 'tarde', '2027-10-11': 'tarde', '2027-10-12': 'tarde',
-  '2027-10-13': 'tarde', '2027-10-14': 'tarde', '2027-10-15': 'tarde',
-  '2027-10-16': 'tarde', '2027-10-17': 'tarde', '2027-10-18': 'tarde',
-  '2027-10-19': 'tarde', '2027-10-20': 'tarde', '2027-10-21': 'tarde',
-  '2027-10-22': 'tarde', '2027-10-23': 'tarde', '2027-10-24': 'tarde',
-  '2027-10-25': 'tarde', '2027-10-26': 'tarde', '2027-10-27': 'tarde',
-  '2027-10-28': 'tarde', '2027-10-29': 'tarde', '2027-10-30': 'tarde',
-  '2027-10-31': 'tarde',
-  // 2027 - NOVIEMBRE (todo el mes tarde según calendario)
-  '2027-11-01': 'tarde', '2027-11-02': 'tarde', '2027-11-03': 'tarde',
-  '2027-11-04': 'tarde', '2027-11-05': 'tarde', '2027-11-06': 'tarde',
-  '2027-11-07': 'tarde', '2027-11-08': 'tarde', '2027-11-09': 'tarde',
-  '2027-11-10': 'tarde', '2027-11-11': 'tarde', '2027-11-12': 'tarde',
-  '2027-11-13': 'tarde', '2027-11-14': 'tarde', '2027-11-15': 'tarde',
-  '2027-11-16': 'tarde', '2027-11-17': 'tarde', '2027-11-18': 'tarde',
-  '2027-11-19': 'tarde', '2027-11-20': 'tarde', '2027-11-21': 'tarde',
-  '2027-11-22': 'tarde', '2027-11-23': 'tarde', '2027-11-24': 'tarde',
-  '2027-11-25': 'tarde', '2027-11-26': 'tarde', '2027-11-27': 'tarde',
-  '2027-11-28': 'tarde', '2027-11-29': 'tarde', '2027-11-30': 'tarde',
-  // 2027 - DICIEMBRE (todo el mes tarde según calendario)
-  '2027-12-01': 'tarde', '2027-12-02': 'tarde', '2027-12-03': 'tarde',
-  '2027-12-04': 'tarde', '2027-12-05': 'tarde', '2027-12-06': 'tarde',
-  '2027-12-07': 'tarde', '2027-12-08': 'tarde', '2027-12-09': 'tarde',
-  '2027-12-10': 'tarde', '2027-12-11': 'tarde', '2027-12-12': 'tarde',
-  '2027-12-13': 'tarde', '2027-12-14': 'tarde', '2027-12-15': 'tarde',
-  '2027-12-16': 'tarde', '2027-12-17': 'tarde', '2027-12-18': 'tarde',
-  '2027-12-19': 'tarde', '2027-12-20': 'tarde', '2027-12-21': 'tarde',
-  '2027-12-22': 'tarde', '2027-12-23': 'tarde', '2027-12-24': 'tarde',
-  '2027-12-25': 'tarde', '2027-12-26': 'tarde', '2027-12-27': 'tarde',
-  '2027-12-28': 'tarde', '2027-12-29': 'tarde', '2027-12-30': 'tarde',
-  '2027-12-31': 'tarde'
-};
+const INICIO_CICLO = new Date('2025-12-29T00:00:00');
+const DURACION_CICLO = 42;
 
-// Información de turnos para mostrar
+function calcularTurno(fechaStr) {
+  const fecha = new Date(fechaStr + 'T00:00:00');
+  const diffMs = fecha - INICIO_CICLO;
+  const diffDias = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+  if (diffDias < 0) return 'fiesta';
+  const pos = diffDias % DURACION_CICLO;
+  if (pos < 7) return 'fiesta';
+  if (pos < 14) return 'manana';
+  if (pos < 21) return 'fiesta';
+  if (pos < 28) return 'tarde';
+  if (pos < 35) return 'fiesta';
+  return 'refuerzo';
+}
+
 const INFO_TURNOS = {
-  manana: { icon: '', texto: 'Matí' },
-  tarde: { icon: '🌆', texto: 'Tarda' },
-  refuerzo: { icon: '💪', texto: 'Reforç' }
+  manana:  { icon: '🌅', texto: 'Matí' },
+  tarde:   { icon: '🌆', texto: 'Tarda' },
+  refuerzo:{ icon: '💪', texto: 'Reforç' },
+  fiesta:  { icon: '🏖️', texto: 'Festa' }
 };
 
 let partidosData = [];
@@ -672,64 +445,47 @@ function googleMapsUrl(campo) {
 }
 
 function renderizarTurno(fechaStr) {
-  const turno = TURNOS_TRABAJO[fechaStr];
-  if (!turno) return '';
+  const turno = calcularTurno(fechaStr);
   const info = INFO_TURNOS[turno];
-  return `
-    <div class="turno-badge ${turno}">
-      <span class="turno-icon">${info.icon}</span>
-      <span>${info.texto}</span>
-    </div>`;
+  return `<div class="turno-badge ${turno}"><span class="turno-icon">${info.icon}</span><span>${info.texto}</span></div>`;
 }
 
 function renderizar() {
   const contenido = document.getElementById('contenido');
   let filtrados = partidosData;
-
   const hoy = new Date();
   hoy.setHours(0, 0, 0, 0);
   filtrados = filtrados.filter(p => {
     const fechaPartido = new Date(p.fecha + 'T12:00:00');
     return fechaPartido >= hoy;
   });
-
   if (filtroActual !== 'todos') {
     filtrados = filtrados.filter(p => p.jugador === filtroActual);
   }
-
   if (filtrados.length === 0) {
     contenido.innerHTML = '<div class="empty">No hi ha partits futurs per mostrar</div>';
     document.getElementById('scrollIndicator').innerHTML = '';
     return;
   }
-
   const semanas = agruparPorSemana(filtrados);
   const hoyStr = hoy.toISOString().split('T')[0];
-
   const html = semanas.map((semana, idxSemana) => {
     const lunes = semana.lunes;
     const domingo = new Date(lunes);
     domingo.setDate(lunes.getDate() + 6);
     const esActual = hoy >= lunes && hoy <= domingo;
     const rangoStr = `${lunes.getDate()} ${MESES_CORTOS[lunes.getMonth()]} - ${domingo.getDate()} ${MESES_CORTOS[domingo.getMonth()]} ${domingo.getFullYear()}`;
-
-    const diasOrdenados = Object.keys(semana.dias)
-      .sort((a, b) => new Date(a) - new Date(b));
-
+    const diasOrdenados = Object.keys(semana.dias).sort((a, b) => new Date(a) - new Date(b));
     const diasHtml = diasOrdenados.map(fechaKey => {
       const fecha = new Date(fechaKey + 'T12:00:00');
       const esHoy = fechaKey === hoyStr;
       const diaSemana = DIAS_SEMANA[fecha.getDay()];
-      const partidosDia = semana.dias[fechaKey].sort((a, b) => {
-        return (a.hora || '00:00').localeCompare(b.hora || '00:00');
-      });
-
+      const partidosDia = semana.dias[fechaKey].sort((a, b) => (a.hora || '00:00').localeCompare(b.hora || '00:00'));
       const partidosHtml = partidosDia.map(p => {
         const tag = p.jugador === 'Biel' ? 'biel' : 'erik';
         const lvClass = p.es_local ? 'local' : 'visitante';
         const lvText = p.es_local ? 'Local' : 'Visitant';
         const mapaUrl = googleMapsUrl(p.campo);
-
         return `
           <div class="partido">
             <div class="partido-top">
@@ -756,24 +512,26 @@ function renderizar() {
             </div>
           </div>`;
       }).join('');
-
       return `
         <div class="dia-card ${esHoy ? 'hoy' : ''}">
           <div class="dia-header">
-            <div class="dia-numero">
-              <span class="num">${fecha.getDate()}</span>
-              <span class="mes">${MESES_CORTOS[fecha.getMonth()]}</span>
+            <div class="dia-header-izq">
+              <div class="dia-numero">
+                <span class="num">${fecha.getDate()}</span>
+                <span class="mes">${MESES_CORTOS[fecha.getMonth()]}</span>
+              </div>
+              <div class="dia-info">
+                <div class="dia-semana">${diaSemana}${esHoy ? ' · AVUI' : ''}</div>
+                <div class="dia-sub">${partidosDia.length} partit${partidosDia.length > 1 ? 's' : ''}</div>
+              </div>
             </div>
-            <div class="dia-info">
-              <div class="dia-semana">${diaSemana}${esHoy ? ' · AVUI' : ''}</div>
-              <div class="dia-sub">${partidosDia.length} partit${partidosDia.length > 1 ? 's' : ''}</div>
+            <div class="dia-header-der">
               ${renderizarTurno(fechaKey)}
             </div>
           </div>
           ${partidosHtml}
         </div>`;
     }).join('');
-
     return `
       <div class="semana-card ${esActual ? 'actual' : ''}" data-index="${idxSemana}">
         <div class="semana-header">
@@ -784,9 +542,7 @@ function renderizar() {
         ${diasHtml}
       </div>`;
   }).join('');
-
   contenido.innerHTML = `<div class="semanas-container" id="semanasContainer">${html}</div>`;
-
   const container = document.getElementById('semanasContainer');
   const semanaActual = document.querySelector('.semana-card.actual');
   if (semanaActual) {
@@ -798,7 +554,6 @@ function renderizar() {
   } else {
     actualizarIndicadores(0, semanas.length);
   }
-
   let currentIndex = 0;
   container.addEventListener('scroll', () => {
     const newIndex = Math.round(container.scrollLeft / container.offsetWidth);
