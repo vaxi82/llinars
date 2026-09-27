@@ -2,20 +2,6 @@
   {
     "jugador": "Erik",
     "categoria": "Infantil A",
-    "jornada": "1",
-    "equipo_local": "SANT CELONI, FUTBOL CLUB  A",
-    "equipo_visitante": "LLINARS, C.E. A",
-    "escudo_local": "escudos/00100_0000574670_stceloni_200x200.png",
-    "escudo_visitante": "escudos/00100_0001223430_LLINARS.png",
-    "es_local": false,
-    "fecha": "2026-09-26",
-    "hora": "11:45",
-    "campo": "CAMP D´ESPORTS MPAL. DE SANT CELONI",
-    "url": "https://www.fcf.cat/ca/competicio?temporadaId=22&disciplinaId=19308233&competicioId=58162474&grupId=58162479"
-  },
-  {
-    "jugador": "Erik",
-    "categoria": "Infantil A",
     "jornada": "2",
     "equipo_local": "LLINARS, C.E. A",
     "equipo_visitante": "SABADELL F.C., C.E. C",
