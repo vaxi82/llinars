@@ -30,19 +30,13 @@ jobs:
           pip install requests
 
       - name: Ejecutar Scraper
-        run: |
-          python scraper.py
+        run: python scraper.py
 
       - name: Mostrar archivos generados
         run: |
-          echo "======================================"
-          echo "PARTIDOS.JSON"
-          echo "======================================"
+          echo "=== PARTIDOS.JSON ==="
           ls -lh partidos.json
-          echo ""
-          echo "======================================"
-          echo "ESCUDOS"
-          echo "======================================"
+          echo "=== ESCUDOS ==="
           if [ -d "escudos" ]; then
             find escudos -maxdepth 1 -type f -print | sort
           else
