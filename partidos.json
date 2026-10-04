@@ -2,20 +2,6 @@
   {
     "jugador": "Erik",
     "categoria": "Infantil A",
-    "jornada": "2",
-    "equipo_local": "LLINARS, C.E. A",
-    "equipo_visitante": "SABADELL F.C., C.E. C",
-    "escudo_local": "escudos/00100_0001223430_LLINARS.png",
-    "escudo_visitante": "escudos/00100_0001025828_escut_CES__1_.png",
-    "es_local": true,
-    "fecha": "2026-10-03",
-    "hora": "14:30",
-    "campo": "CAMP D´ESPORTS MPAL. JOAN MISSER I COLL",
-    "url": "https://www.fcf.cat/ca/competicio?temporadaId=22&disciplinaId=19308233&competicioId=58162474&grupId=58162479"
-  },
-  {
-    "jugador": "Erik",
-    "categoria": "Infantil A",
     "jornada": "3",
     "equipo_local": "TORELLO, C.F. A",
     "equipo_visitante": "LLINARS, C.E. A",
