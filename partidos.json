@@ -2,20 +2,6 @@
   {
     "jugador": "Erik",
     "categoria": "Infantil A",
-    "jornada": "3",
-    "equipo_local": "TORELLO, C.F. A",
-    "equipo_visitante": "LLINARS, C.E. A",
-    "escudo_local": "escudos/00100_0000651415_torello_200x200.png",
-    "escudo_visitante": "escudos/00100_0001223430_LLINARS.png",
-    "es_local": false,
-    "fecha": "2026-10-10",
-    "hora": "13:50",
-    "campo": "CAMP DE FUTBOL MPAL. DE TORELLÓ",
-    "url": "https://www.fcf.cat/ca/competicio?temporadaId=22&disciplinaId=19308233&competicioId=58162474&grupId=58162479"
-  },
-  {
-    "jugador": "Erik",
-    "categoria": "Infantil A",
     "jornada": "4",
     "equipo_local": "LLINARS, C.E. A",
     "equipo_visitante": "RIUDEPERES C.F. AT. A",
@@ -390,20 +376,6 @@
     "hora": "12:30",
     "campo": "CAMP D´ESPORTS MPAL. DE LA GARRIGA",
     "url": "https://www.fcf.cat/ca/competicio?temporadaId=22&disciplinaId=19308233&competicioId=58162474&grupId=58162479"
-  },
-  {
-    "jugador": "Biel",
-    "categoria": "Benjamí B",
-    "jornada": "2",
-    "equipo_local": "LLINARS, C.E. B",
-    "equipo_visitante": "MALGRAT , C.E. B",
-    "escudo_local": "escudos/00100_0001223430_LLINARS.png",
-    "escudo_visitante": "escudos/00100_0001163074_MalgratPNG__1_.png",
-    "es_local": true,
-    "fecha": "2026-10-10",
-    "hora": "09:45",
-    "campo": "CAMP D´ESPORTS MPAL. JOAN MISSER I COLL",
-    "url": "https://www.fcf.cat/ca/competicio?temporadaId=22&disciplinaId=19308235&competicioId=58162174&grupId=60364101"
   },
   {
     "jugador": "Biel",
