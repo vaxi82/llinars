@@ -2,20 +2,6 @@
   {
     "jugador": "Erik",
     "categoria": "Infantil A",
-    "jornada": "4",
-    "equipo_local": "LLINARS, C.E. A",
-    "equipo_visitante": "RIUDEPERES C.F. AT. A",
-    "escudo_local": "escudos/00100_0001223430_LLINARS.png",
-    "escudo_visitante": "escudos/00100_0000012252_Escut_Riudeperes.png",
-    "es_local": true,
-    "fecha": "2026-10-17",
-    "hora": "15:00",
-    "campo": "CAMP D´ESPORTS MPAL. JOAN MISSER I COLL",
-    "url": "https://www.fcf.cat/ca/competicio?temporadaId=22&disciplinaId=19308233&competicioId=58162474&grupId=58162479"
-  },
-  {
-    "jugador": "Erik",
-    "categoria": "Infantil A",
     "jornada": "5",
     "equipo_local": "CALLDETENES, C.F. A",
     "equipo_visitante": "LLINARS, C.E. A",
@@ -376,20 +362,6 @@
     "hora": "12:30",
     "campo": "CAMP D´ESPORTS MPAL. DE LA GARRIGA",
     "url": "https://www.fcf.cat/ca/competicio?temporadaId=22&disciplinaId=19308233&competicioId=58162474&grupId=58162479"
-  },
-  {
-    "jugador": "Biel",
-    "categoria": "Benjamí B",
-    "jornada": "3",
-    "equipo_local": "ROCAFONDA CLUB FUTBOL A",
-    "equipo_visitante": "LLINARS, C.E. B",
-    "escudo_local": "escudos/00100_0001067520_rocafonda.png",
-    "escudo_visitante": "escudos/00100_0001223430_LLINARS.png",
-    "es_local": false,
-    "fecha": "2026-10-17",
-    "hora": "10:45",
-    "campo": "CAMP DE FUTBOL MPAL. DE ROCAFONDA",
-    "url": "https://www.fcf.cat/ca/competicio?temporadaId=22&disciplinaId=19308235&competicioId=58162174&grupId=60364101"
   },
   {
     "jugador": "Biel",
