@@ -477,12 +477,13 @@ function extraePartidosFCF(data, j) {
   return out.filter(p => p.fecha);
 }
 
-const RUTAS = [
-  { nombre: 'directe',   url: u => u },
-  { nombre: 'allorigins', url: u => 'https://api.allorigins.win/raw?url=' + encodeURIComponent(u) },
-  { nombre: 'codetabs',  url: u => 'https://api.codetabs.com/v1/proxy/?quest=' + encodeURIComponent(u) },
-  { nombre: 'corsproxy', url: u => 'https://corsproxy.io/?url=' + encodeURIComponent(u) }
-];
+// Si montas el proxy (worker.js en Cloudflare), pega aquí su URL, p. ej. 'https://llinars.TU-USUARIO.workers.dev'
+const PROXY_URL = '';
+
+const RUTAS = [];
+if (PROXY_URL) {
+  RUTAS.push({ nombre: 'proxy', url: u => PROXY_URL + '?grupId=' + new URL(u).searchParams.get('grupId') });
+}
 
 async function intentarRuta(ruta) {
   const ctl = new AbortController();
@@ -517,6 +518,8 @@ async function cargarEnDirecto() {
 async function cargarGuardados() {
   const res = await fetch('partidos.json?_=' + Date.now(), { cache: 'no-store' });
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  const lm = res.headers.get('Last-Modified');
+  window.__fechaDatos = lm ? new Date(lm) : null;
   const data = limpiar(await res.json());
   data.forEach(p => {
     p.escudo_local = aRutaLocal(p.escudo_local);
@@ -531,18 +534,21 @@ async function cargarPartidos(forzar = false) {
   cargando = true;
   const origen = document.getElementById('origen');
   try {
-    try {
-      const r = await cargarEnDirecto();
-      partidosData = r.datos;
-      origen.textContent = r.via === 'directe' ? 'dades en directe' : 'dades en directe (via ' + r.via + ')';
-      document.getElementById('diag').style.display = 'none';
-    } catch (e) {
-      console.warn('Directe no disponible, uso partidos.json:', e);
+    const diag = document.getElementById('diag');
+    diag.style.display = 'none';
+    let hecho = false;
+    if (RUTAS.length) {
+      try {
+        const r = await cargarEnDirecto();
+        partidosData = r.datos;
+        origen.textContent = 'dades en directe';
+        hecho = true;
+      } catch (e) { console.warn('Directe no disponible:', e); }
+    }
+    if (!hecho) {
       partidosData = await cargarGuardados();
-      origen.textContent = 'dades guardades';
-      const d = document.getElementById('diag');
-      d.textContent = 'No s\'ha pogut actualitzar → ' + e.message;
-      d.style.display = 'block';
+      const f = window.__fechaDatos;
+      origen.textContent = f ? 'dades del ' + f.getDate() + '/' + (f.getMonth() + 1) : 'dades guardades';
     }
     ultimaCarga = Date.now();
     renderizar();
