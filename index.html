@@ -326,7 +326,7 @@
 <div class="container">
   <header>
     <h1> AGENDA C.E. LLINARS</h1>
-    <p>Temporada 2026-2027</p>
+    <p>Temporada 2026-2027 · <span id="origen">...</span></p>
   </header>
 
   <div class="filters">
@@ -403,17 +403,22 @@ function aRutaLocal(url) {
   return url;
 }
 
-function renderizarEquipo(nombre, escudoUrl) {
+function renderizarEquipo(nombre, escudoUrl, remoto) {
   return `
     <div class="equipo">
       <div class="escudo-wrap">
-        <img src="${escudoUrl}" alt="${nombre}" class="escudo" onerror="window.fallbackEscudo(this)">
+        <img src="${escudoUrl}" ${remoto ? `data-remoto="${remoto}"` : ''} alt="${nombre}" class="escudo" onerror="window.fallbackEscudo(this)">
       </div>
       <div class="equipo-nombre">${nombre}</div>
     </div>`;
 }
 
 window.fallbackEscudo = function(img) {
+  if (img.dataset.remoto && !img.dataset.probado) {
+    img.dataset.probado = '1';
+    img.src = img.dataset.remoto;
+    return;
+  }
   if (img.classList.contains('fallback-applied')) return;
   img.classList.add('fallback-applied');
   const div = document.createElement('div');
@@ -422,21 +427,100 @@ window.fallbackEscudo = function(img) {
   img.parentNode.replaceChild(div, img);
 };
 
-async function cargarPartidos() {
+// ---------- Carga en directo desde la FCF (desde el navegador, sin GitHub Actions) ----------
+const FCF_JUGADORES = [
+  { jugador: 'Erik', categoria: 'Infantil A',
+    api: 'https://www.fcf.cat/api/competition/partidos?grupId=58162479',
+    url: 'https://www.fcf.cat/ca/competicio?temporadaId=22&disciplinaId=19308233&competicioId=58162474&grupId=58162479' },
+  { jugador: 'Biel', categoria: 'Benjamí B',
+    api: 'https://www.fcf.cat/api/competition/partidos?grupId=60364101',
+    url: 'https://www.fcf.cat/ca/competicio?temporadaId=22&disciplinaId=19308235&competicioId=58162174&grupId=60364101' }
+];
+const CLUB = 'LLINARS';
+const CAMPO_CASA = 'Camp Municipal de Llinars del Vallès';
+const BASE_ESCUDOS = 'https://www.fcf.cat/img/escudos/';
+const ESCUDO_CLUB = 'escudos/club_08027.png';
+
+function escudosDe(valor) {
+  if (!valor) return { local: ESCUDO_CLUB, remoto: null };
+  const v = String(valor).trim();
+  const remoto = /^https?:\/\//.test(v) ? v : BASE_ESCUDOS + v.replace(/^\/+/, '');
+  const nombre = remoto.split('?')[0].split('/').pop().replace(/[^A-Za-z0-9._-]/g, '_');
+  return { local: 'escudos/' + nombre, remoto };
+}
+
+function extraePartidosFCF(data, j) {
+  const out = [];
+  for (const [jornada, lista] of Object.entries(data || {})) {
+    if (!Array.isArray(lista)) continue;
+    for (const p of lista) {
+      if (!p || p.CODEQUIPO_CASA === '-1' || p.CODEQUIPO_FUERA === '-1') continue;
+      const loc = (p.NOMBRE_CASA || '').trim(), vis = (p.NOMBRE_FUERA || '').trim();
+      if (!(loc + ' ' + vis).toUpperCase().includes(CLUB)) continue;
+      const m = String(p.COMIENZO1 || '').trim().match(/^(\d{4}-\d{2}-\d{2})[ T](\d{2}:\d{2})/);
+      const esLocal = loc.toUpperCase().includes(CLUB);
+      const eL = escudosDe(p.ESCUDO_CASA), eV = escudosDe(p.ESCUDO_FUERA);
+      out.push({
+        jugador: j.jugador, categoria: j.categoria, jornada,
+        equipo_local: loc, equipo_visitante: vis,
+        escudo_local: eL.local, escudo_local_remoto: eL.remoto,
+        escudo_visitante: eV.local, escudo_visitante_remoto: eV.remoto,
+        es_local: esLocal,
+        fecha: m ? m[1] : null, hora: m ? m[2] : '',
+        campo: p.CAMPO || (esLocal ? CAMPO_CASA : 'Camp de ' + vis),
+        url: j.url
+      });
+    }
+  }
+  return out.filter(p => p.fecha);
+}
+
+async function cargarEnDirecto() {
+  const ctl = new AbortController();
+  const t = setTimeout(() => ctl.abort(), 8000);
   try {
-    const res = await fetch('partidos.json?_=' + Date.now(), { cache: 'no-store' });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const data = await res.json();
-    partidosData = limpiar(data);
-    partidosData.forEach(p => {
-      p.escudo_local = aRutaLocal(p.escudo_local);
-      p.escudo_visitante = aRutaLocal(p.escudo_visitante);
-    });
+    const listas = await Promise.all(FCF_JUGADORES.map(async j => {
+      const r = await fetch(j.api, { cache: 'no-store', signal: ctl.signal });
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      return extraePartidosFCF(await r.json(), j);
+    }));
+    const todos = listas.flat();
+    if (!todos.length) throw new Error('sense partits');
+    return todos;
+  } finally { clearTimeout(t); }
+}
+
+async function cargarGuardados() {
+  const res = await fetch('partidos.json?_=' + Date.now(), { cache: 'no-store' });
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  const data = limpiar(await res.json());
+  data.forEach(p => {
+    p.escudo_local = aRutaLocal(p.escudo_local);
+    p.escudo_visitante = aRutaLocal(p.escudo_visitante);
+  });
+  return data;
+}
+
+let ultimaCarga = 0, cargando = false;
+async function cargarPartidos(forzar = false) {
+  if (cargando || (!forzar && Date.now() - ultimaCarga < 30000)) return;
+  cargando = true;
+  const origen = document.getElementById('origen');
+  try {
+    try {
+      partidosData = await cargarEnDirecto();
+      origen.textContent = 'dades en directe';
+    } catch (e) {
+      console.warn('Directe no disponible, uso partidos.json:', e);
+      partidosData = await cargarGuardados();
+      origen.textContent = 'dades guardades';
+    }
+    ultimaCarga = Date.now();
     renderizar();
   } catch (err) {
     document.getElementById('contenido').innerHTML =
-      `<div class="error"><strong>Error:</strong> ${err.message}<br><small>Verifica que partidos.json y la carpeta escudos/ existen.</small></div>`;
-  }
+      `<div class="error"><strong>Error:</strong> ${err.message}<br><small>Verifica que partidos.json i la carpeta escudos/ existeixen.</small></div>`;
+  } finally { cargando = false; }
 }
 
 function getLunes(fecha) {
@@ -521,9 +605,9 @@ function renderizar() {
               <div class="hora-badge">🕐 ${p.hora}</div>
             </div>
             <div class="equipos">
-              ${renderizarEquipo(p.equipo_local, p.escudo_local)}
+              ${renderizarEquipo(p.equipo_local, p.escudo_local, p.escudo_local_remoto)}
               <div class="vs">VS</div>
-              ${renderizarEquipo(p.equipo_visitante, p.escudo_visitante)}
+              ${renderizarEquipo(p.equipo_visitante, p.escudo_visitante, p.escudo_visitante_remoto)}
             </div>
             <div class="partido-bottom">
               <a href="${mapaUrl}" target="_blank" rel="noopener" class="campo-link">
@@ -654,7 +738,7 @@ window.addEventListener('focus', () => cargarPartidos());
       setTimeout(() => location.reload(), 300);
       return;
     }
-    await cargarPartidos();
+    await cargarPartidos(true);
     const resto = Math.max(0, 700 - (Date.now() - inicio));
     setTimeout(() => {
       ptr.classList.remove('cargando');
