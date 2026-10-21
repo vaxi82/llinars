@@ -151,6 +151,24 @@ def extrae_partidos(data, jugador, categoria, url_web):
             })
     return acumulados
 
+def get_con_reintentos(url, intentos=4, timeout=25):
+    """GET con reintentos y logs de diagnóstico (status, cabeceras, inicio del body)."""
+    import time
+    ultimo = None
+    for i in range(1, intentos + 1):
+        try:
+            res = requests.get(url, headers=headers, timeout=timeout)
+            print(f"[{i}/{intentos}] GET {url} -> HTTP {res.status_code} "
+                  f"({res.headers.get('Content-Type', '?')}, {len(res.content)} bytes)")
+            if res.status_code == 200:
+                return res
+            print("   Body (primeros 300 chars):", res.text[:300].replace("\n", " "))
+            ultimo = res
+        except requests.RequestException as e:
+            print(f"[{i}/{intentos}] ERROR de red: {e}")
+        time.sleep(5 * i)
+    return ultimo
+
 def main():
     hoy = date.today()
     partidos = []
@@ -159,11 +177,15 @@ def main():
     for eq in JUGADORES:
         print(f"\n{'='*70}\nProcesando {eq['jugador']} ({eq['categoria']})\n{'='*70}")
         try:
-            res = requests.get(eq["api"], headers=headers, timeout=25)
-            if res.status_code != 200:
-                errores.append(f"{eq['jugador']}: HTTP {res.status_code}")
+            res = get_con_reintentos(eq["api"])
+            if res is None or res.status_code != 200:
+                errores.append(f"{eq['jugador']}: HTTP {getattr(res, 'status_code', 'sin respuesta')}")
                 continue
-            data = res.json()
+            try:
+                data = res.json()
+            except ValueError:
+                errores.append(f"{eq['jugador']}: la respuesta no es JSON: {res.text[:200]!r}")
+                continue
             if not isinstance(data, dict):
                 errores.append(f"{eq['jugador']}: formato inesperado ({type(data)})")
                 continue
@@ -196,5 +218,5 @@ def main():
         for e in errores:
             print(f"  - {e}")
 
-if __name__ == "__main__":  # ← ESTO ESTABA MAL EN TU ARCHIVO
+if __name__ == "__main__":
     main()
