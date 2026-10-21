@@ -182,25 +182,60 @@ def get_con_reintentos(url, timeout=25):
         time.sleep(3)
     return ultimo
 
+ENTRADA_DIR = "entrada"
+
+def leer_entrada(jugador):
+    """Lee el JSON más reciente que el iPhone subió a entrada/<jugador>-<fecha>.json.
+    Devuelve (data, [ficheros usados]) o (None, [])."""
+    import glob
+    ficheros = sorted(glob.glob(os.path.join(ENTRADA_DIR, f"{jugador.lower()}-*.json")))
+    if not ficheros:
+        return None, []
+    try:
+        with open(ficheros[-1], encoding="utf-8") as f:
+            data = json.load(f)
+        print(f"Usando datos subidos desde el iPhone: {ficheros[-1]}")
+        return data, ficheros
+    except Exception as e:
+        print(f"AVISO: no se pudo leer {ficheros[-1]}: {e}")
+        return None, ficheros
+
 def main():
     hoy = date.today()
     partidos = []
     errores = []
+    usados = []
+    sin_datos_nuevos = []
     os.makedirs(ESCUDOS_DIR, exist_ok=True)
+
+    antiguos = []
+    if os.path.isfile("partidos.json"):
+        try:
+            with open("partidos.json", encoding="utf-8") as f:
+                antiguos = json.load(f)
+        except Exception:
+            antiguos = []
+
     for eq in JUGADORES:
         print(f"\n{'='*70}\nProcesando {eq['jugador']} ({eq['categoria']})\n{'='*70}")
         try:
-            res = get_con_reintentos(eq["api"])
-            if res is None or res.status_code != 200:
-                errores.append(f"{eq['jugador']}: HTTP {getattr(res, 'status_code', 'sin respuesta')}")
-                continue
-            try:
-                data = res.json()
-            except ValueError:
-                errores.append(f"{eq['jugador']}: la respuesta no es JSON: {res.text[:200]!r}")
-                continue
+            data, ficheros = leer_entrada(eq["jugador"])
+            usados.extend(ficheros)
+            if data is None:
+                res = get_con_reintentos(eq["api"])
+                if res is None or res.status_code != 200:
+                    errores.append(f"{eq['jugador']}: HTTP {getattr(res, 'status_code', 'sin respuesta')}")
+                    sin_datos_nuevos.append(eq["jugador"])
+                    continue
+                try:
+                    data = res.json()
+                except ValueError:
+                    errores.append(f"{eq['jugador']}: la respuesta no es JSON: {res.text[:200]!r}")
+                    sin_datos_nuevos.append(eq["jugador"])
+                    continue
             if not isinstance(data, dict):
                 errores.append(f"{eq['jugador']}: formato inesperado ({type(data)})")
+                sin_datos_nuevos.append(eq["jugador"])
                 continue
             encontrados = extrae_partidos(data, eq["jugador"], eq["categoria"], eq["url_web"])
             futuros = [p for p in encontrados if p["_fecha_date"] and p["_fecha_date"] >= hoy]
@@ -211,21 +246,39 @@ def main():
                 futuros = con_fecha[-1:]
             if not futuros:
                 errores.append(f"{eq['jugador']}: no hay partidos de {CLUB}")
+                sin_datos_nuevos.append(eq["jugador"])
             partidos.extend(futuros)
         except Exception as e:
             errores.append(f"{eq['jugador']}: {e}")
+            sin_datos_nuevos.append(eq["jugador"])
+
     for p in partidos:
         p.pop("_fecha_date", None)
-    if not partidos:
-        print("\nERROR — no se pudo extraer ningún partido real:")
+
+    # Jugadores sin datos nuevos: conservar lo que ya había en partidos.json
+    for nombre in sin_datos_nuevos:
+        previos = [p for p in antiguos if p.get("jugador") == nombre]
+        if previos:
+            print(f"Conservando {len(previos)} partidos anteriores de {nombre}")
+            partidos.extend(previos)
+
+    hay_nuevos = len(sin_datos_nuevos) < len(JUGADORES)
+    if not partidos or not hay_nuevos:
+        print("\nNo se obtuvieron datos nuevos:")
         for e in errores:
             print("  -", e)
-        if os.path.isfile("partidos.json") and os.path.getsize("partidos.json") > 0:
+        if antiguos:
             print("::warning title=Scraper bloqueado::No se pudo actualizar; se mantiene el partidos.json anterior. " + " | ".join(errores))
             sys.exit(0)
         sys.exit(1)
+
     with open("partidos.json", "w", encoding="utf-8") as f:
         json.dump(partidos, f, ensure_ascii=False, indent=2)
+    for fich in usados:           # los ficheros de entrada ya están procesados
+        try:
+            os.remove(fich)
+        except OSError:
+            pass
     print(f"\n{'='*70}\nOK: {len(partidos)} partidos guardados\n{'='*70}")
     for p in partidos:
         print(f"- {p['jugador']}: {p['equipo_local']} vs {p['equipo_visitante']} | {p['fecha']} {p['hora']} | J{p['jornada']}")
