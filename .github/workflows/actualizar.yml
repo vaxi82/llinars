@@ -1,8 +1,11 @@
 name: Actualizar Partidos
 
-# La FCF bloquea las IPs de GitHub (403), así que los datos los sube el iPhone
-# (Atajo) a entrada/ y luego lanza este workflow con workflow_dispatch.
+# Si la FCF bloquea las IPs de GitHub (403) se conserva el partidos.json anterior
+# (aviso amarillo, sin fallo). Cuando desbloquee, se actualizará solo.
 on:
+  schedule:
+    - cron: '0 6,12,18 * * 1-5'
+    - cron: '0 */4 * * 0,6'
   workflow_dispatch:
 
 permissions:
