@@ -329,6 +329,8 @@
     <p>Temporada 2026-2027 · <span id="origen">...</span></p>
   </header>
 
+  <div id="diag" style="display:none;font-size:0.65rem;color:#64748b;margin:-0.4rem 0 0.8rem;text-align:center;word-break:break-word"></div>
+
   <div class="filters">
     <button class="filter-btn active" data-filter="todos">Tots</button>
     <button class="filter-btn" data-filter="Erik">Erik</button>
@@ -475,12 +477,19 @@ function extraePartidosFCF(data, j) {
   return out.filter(p => p.fecha);
 }
 
-async function cargarEnDirecto() {
+const RUTAS = [
+  { nombre: 'directe',   url: u => u },
+  { nombre: 'allorigins', url: u => 'https://api.allorigins.win/raw?url=' + encodeURIComponent(u) },
+  { nombre: 'codetabs',  url: u => 'https://api.codetabs.com/v1/proxy/?quest=' + encodeURIComponent(u) },
+  { nombre: 'corsproxy', url: u => 'https://corsproxy.io/?url=' + encodeURIComponent(u) }
+];
+
+async function intentarRuta(ruta) {
   const ctl = new AbortController();
-  const t = setTimeout(() => ctl.abort(), 8000);
+  const t = setTimeout(() => ctl.abort(), 9000);
   try {
     const listas = await Promise.all(FCF_JUGADORES.map(async j => {
-      const r = await fetch(j.api, { cache: 'no-store', signal: ctl.signal });
+      const r = await fetch(ruta.url(j.api), { cache: 'no-store', signal: ctl.signal });
       if (!r.ok) throw new Error('HTTP ' + r.status);
       return extraePartidosFCF(await r.json(), j);
     }));
@@ -488,6 +497,21 @@ async function cargarEnDirecto() {
     if (!todos.length) throw new Error('sense partits');
     return todos;
   } finally { clearTimeout(t); }
+}
+
+async function cargarEnDirecto() {
+  const fallos = [];
+  for (const ruta of RUTAS) {
+    try {
+      const datos = await intentarRuta(ruta);
+      return { datos, via: ruta.nombre };
+    } catch (e) {
+      fallos.push(`${ruta.nombre}: ${e.name === 'AbortError' ? 'timeout' : e.message}`);
+    }
+  }
+  const err = new Error(fallos.join(' · '));
+  err.fallos = fallos;
+  throw err;
 }
 
 async function cargarGuardados() {
@@ -508,12 +532,17 @@ async function cargarPartidos(forzar = false) {
   const origen = document.getElementById('origen');
   try {
     try {
-      partidosData = await cargarEnDirecto();
-      origen.textContent = 'dades en directe';
+      const r = await cargarEnDirecto();
+      partidosData = r.datos;
+      origen.textContent = r.via === 'directe' ? 'dades en directe' : 'dades en directe (via ' + r.via + ')';
+      document.getElementById('diag').style.display = 'none';
     } catch (e) {
       console.warn('Directe no disponible, uso partidos.json:', e);
       partidosData = await cargarGuardados();
       origen.textContent = 'dades guardades';
+      const d = document.getElementById('diag');
+      d.textContent = 'No s\'ha pogut actualitzar → ' + e.message;
+      d.style.display = 'block';
     }
     ultimaCarga = Date.now();
     renderizar();
