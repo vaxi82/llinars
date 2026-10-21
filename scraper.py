@@ -1,4 +1,8 @@
 import requests
+try:
+    from curl_cffi import requests as cffi_requests
+except ImportError:
+    cffi_requests = None
 import json
 import sys
 import os
@@ -151,22 +155,31 @@ def extrae_partidos(data, jugador, categoria, url_web):
             })
     return acumulados
 
-def get_con_reintentos(url, intentos=4, timeout=25):
-    """GET con reintentos y logs de diagnóstico (status, cabeceras, inicio del body)."""
+def get_con_reintentos(url, timeout=25):
+    """Intenta primero como Chrome real (curl_cffi) y luego con requests.
+    Si el WAF responde 403 no insiste mucho: es un bloqueo, no un fallo puntual."""
     import time
+    intentos = []
+    if cffi_requests is not None:
+        intentos.append(("curl_cffi/chrome", lambda: cffi_requests.get(
+            url, impersonate="chrome", timeout=timeout,
+            headers={"Accept": "application/json, text/plain, */*",
+                     "Accept-Language": "ca-ES,ca;q=0.9,es;q=0.8",
+                     "Referer": "https://www.fcf.cat/ca/competicio"})))
+    intentos.append(("requests", lambda: requests.get(url, headers=headers, timeout=timeout)))
+    intentos.append(("requests (reintento)", lambda: requests.get(url, headers=headers, timeout=timeout)))
     ultimo = None
-    for i in range(1, intentos + 1):
+    for n, (nombre, fn) in enumerate(intentos, 1):
         try:
-            res = requests.get(url, headers=headers, timeout=timeout)
-            print(f"[{i}/{intentos}] GET {url} -> HTTP {res.status_code} "
-                  f"({res.headers.get('Content-Type', '?')}, {len(res.content)} bytes)")
+            res = fn()
+            print(f"[{n}/{len(intentos)}] {nombre}: GET {url} -> HTTP {res.status_code} ({len(res.content)} bytes)")
             if res.status_code == 200:
                 return res
-            print("   Body (primeros 300 chars):", res.text[:300].replace("\n", " "))
+            print("   Body:", res.text[:150].replace("\n", " "))
             ultimo = res
-        except requests.RequestException as e:
-            print(f"[{i}/{intentos}] ERROR de red: {e}")
-        time.sleep(5 * i)
+        except Exception as e:
+            print(f"[{n}/{len(intentos)}] {nombre}: ERROR {e}")
+        time.sleep(3)
     return ultimo
 
 def main():
@@ -207,6 +220,9 @@ def main():
         print("\nERROR — no se pudo extraer ningún partido real:")
         for e in errores:
             print("  -", e)
+        if os.path.isfile("partidos.json") and os.path.getsize("partidos.json") > 0:
+            print("::warning title=Scraper bloqueado::No se pudo actualizar; se mantiene el partidos.json anterior. " + " | ".join(errores))
+            sys.exit(0)
         sys.exit(1)
     with open("partidos.json", "w", encoding="utf-8") as f:
         json.dump(partidos, f, ensure_ascii=False, indent=2)
